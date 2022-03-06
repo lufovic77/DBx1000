@@ -156,7 +156,6 @@ public:
             printf("lt[%d] %d %lu {", i, ltv.atomicLock, ltv.li.size());
             for (auto lti = ltv.li.begin(); lti != ltv.li.end(); lti++)
             {
-                printf("(%d, %" PRIu64 ", %" PRIu64 ", [", (*lti)->evicted, (*lti)->key, (uint64_t)(*lti)->row);
 #if LOG_ALGORITHM == LOG_TAURUS
                 for (uint j = 0; j < G_NUM_LOGGER; j++)
                 {

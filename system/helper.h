@@ -101,6 +101,24 @@
 	if (STATS_ENABLE) \
 		stats.name += value;
 
+
+#define INC_FLOAT_STATS_V0(name, value) {{ \
+	if (STATS_ENABLE && STAT_VERBOSE >= 0) \
+		stats->_stats[GET_THD_ID]->_float_stats[STAT_##name] += value; }}
+
+#define INC_FLOAT_STATS(name, value) {{ \
+	if (STATS_ENABLE && STAT_VERBOSE >= 1) \
+		stats->_stats[GET_THD_ID]->_float_stats[STAT_##name] += value; }}
+
+#define INC_INT_STATS_V0(name, value) {{ \
+	if (STATS_ENABLE && STAT_VERBOSE >= 0) \
+		stats->_stats[GET_THD_ID]->_int_stats[STAT_##name] += value; }}
+
+#define INC_INT_STATS(name, value) {{ \
+	if (STATS_ENABLE && STAT_VERBOSE >= 1) \
+		stats->_stats[GET_THD_ID]->_int_stats[STAT_##name] += value; }}
+
+
 /************************************************/
 // malloc helper
 /************************************************/

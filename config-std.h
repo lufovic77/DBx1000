@@ -2,6 +2,16 @@
 #define _CONFIG_H_
 
 /***********************************************/
+#define VERBOSE_LEVEL               0 // 0 for nothing
+#define VERBOSE_TXNLV               1
+#define VERBOSE_TXNLV_UPDATE        2
+#define VERBOSE_LOCKTABLE_TXNLV_UPDATE  4
+#define VERBOSE_SQL_CONTENT         8
+/***********************************************/
+
+
+
+/***********************************************/
 // Simulation + Hardware
 /***********************************************/
 #define THREAD_CNT					4
@@ -20,6 +30,11 @@
 // print the transaction latency distribution
 #define PRT_LAT_DISTR				false
 #define STATS_ENABLE				true
+
+#define STAT_VERBOSE				1
+#define COLLECT_LATENCY				false
+
+
 #define TIME_ENABLE					true 
 
 #define MEM_ALLIGN					8 
@@ -41,6 +56,12 @@
 // TODO TIMESTAMP does not work at this moment
 #define CC_ALG 						TICTOC
 #define ISOLATION_LEVEL 			SERIALIZABLE
+
+
+#define USE_LOCKTABLE				true
+#define LOCKTABLE_MODIFIER			(10003) // (256)
+#define LOCKTABLE_INIT_SLOTS		(0)
+
 
 // all transactions acquire tuples according to the primary key order.
 #define KEY_ORDER					false
@@ -161,6 +182,10 @@ extern TPCCTxnType 					g_tpcc_txn_type;
 
 //#define TXN_TYPE					TPCC_ALL
 #define PERC_PAYMENT 				0.5
+#define PERC_NEWORDER				0.5
+#define PERC_ORDERSTATUS			0.03
+#define PERC_DELIVERY				0.294
+#define PERC_STOCKLEVEL				0.03
 #define FIRSTNAME_MINLEN 			8
 #define FIRSTNAME_LEN 				16
 #define LASTNAME_LEN 				16

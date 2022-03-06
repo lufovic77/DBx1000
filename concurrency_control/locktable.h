@@ -419,7 +419,7 @@ public:
         }
 
 #else
-        lock_t lt = (type == RD || type == SCAN) ? LOCK_SH_T : LOCK_EX_T;
+        lock_t_logging lt = (type == RD || type == SCAN) ? LOCK_SH_T : LOCK_EX_T;
         if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
             return Abort;
         if (tryOnce)

@@ -202,6 +202,8 @@ typedef uint64_t lsnType;
 enum access_t {RD, WR, XP, SCAN};
 /* LOCK */
 enum lock_t {LOCK_EX, LOCK_SH, LOCK_NONE };
+                                                            
+enum lock_t_logging {LOCK_NONE_T, LOCK_SH_T, LOCK_EX_T };
 /* TIMESTAMP */
 enum TsType {R_REQ, W_REQ, P_REQ, XP_REQ}; 
 

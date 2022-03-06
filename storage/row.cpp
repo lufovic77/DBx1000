@@ -15,6 +15,46 @@
 #include "mem_alloc.h"
 #include "manager.h"
 
+#include "parallel_log.h"
+#include <new>
+#include <emmintrin.h>
+#include <nmmintrin.h>
+#include <immintrin.h>
+
+
+RC row_t::init(table_t *host_table, uint64_t part_id, uint64_t row_id, void *mem, void * lsn_vec_mem)
+{
+	_row_id = row_id;
+	_part_id = part_id;
+	this->table = host_table;
+
+	data = (char *)mem;
+#if LOG_ALGORITHM == LOG_PARALLEL
+	_last_writer = (uint64_t)-1;
+
+#endif
+#if !USE_LOCKTABLE
+// metadata if not using locktable
+#if LOG_ALGORITHM == LOG_TAURUS
+#if UPDATE_SIMD
+	assert(g_num_logger <= MAX_LOGGER_NUM_SIMD);
+	lsn_vec = (lsnType*) lsn_vec_mem;
+	readLV = lsn_vec + MAX_LOGGER_NUM_SIMD; // (lsnType*) MALLOC(sizeof(lsnType) * 4, GET_THD_ID);
+	memset(lsn_vec, 0, sizeof(lsnType) * MAX_LOGGER_NUM_SIMD * 2);
+#else
+	lsn_vec = (lsnType*) lsn_vec_mem;
+	readLV = lsn_vec + g_num_logger;
+	memset(lsn_vec, 0, sizeof(lsnType) * g_num_logger * 2);
+#endif
+#elif LOG_ALGORITHM == LOG_SERIAL
+	lsn = (lsnType*) lsn_vec_mem;
+#elif LOG_ALGORITHM == LOG_BATCH
+	//
+#endif
+#endif
+	return RCOK;
+}
+
 RC 
 row_t::init(table_t * host_table, uint64_t part_id, uint64_t row_id) {
 	_row_id = row_id;
@@ -35,6 +75,64 @@ RC
 row_t::switch_schema(table_t * host_table) {
 	this->table = host_table;
 	return RCOK;
+}
+
+
+size_t row_t::get_manager_size()
+{
+#if CC_ALG == DL_DETECT || CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE
+	return sizeof(Row_lock);
+#elif CC_ALG == TIMESTAMP
+	return sizeof(Row_ts);
+#elif CC_ALG == MVCC
+	return sizeof(Row_mvcc);
+#elif CC_ALG == HEKATON
+	return sizeof(Row_hekaton);
+#elif CC_ALG == OCC
+	return sizeof(Row_occ);
+#elif CC_ALG == TICTOC
+	return sizeof(Row_tictoc);
+#elif CC_ALG == SILO
+	return sizeof(Row_silo);
+#elif CC_ALG == VLL
+	return sizeof(Row_vll);
+#endif
+}
+
+
+void row_t::init_manager(row_t *row, void *manager_ptr)
+{
+#if CC_ALG == DL_DETECT || CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE
+	manager = (Row_lock *) manager_ptr;
+	new (manager) Row_lock();
+#elif CC_ALG == TIMESTAMP
+	manager = (Row_ts *)manager_ptr;
+	new (manager) Row_ts();
+#elif CC_ALG == MVCC
+	manager = (Row_mvcc *)manager_ptr;
+	new (manager) Row_mvcc();
+#elif CC_ALG == HEKATON
+	manager = (Row_hekaton *)manager_ptr;
+	new (manager) Row_hekaton();
+#elif CC_ALG == OCC
+	manager = (Row_occ *)manager_ptr;
+	new (manager) Row_occ();
+#elif CC_ALG == TICTOC
+	manager = (Row_tictoc *)manager_ptr;
+	new (manager) Row_tictoc();
+#elif CC_ALG == SILO
+	manager = (Row_silo *)manager_ptr;
+	new (manager) Row_silo();
+	//assert((uint64_t)manager > 0x700000000000);
+#elif CC_ALG == VLL
+	manager = (Row_vll *)manager_ptr;
+	new (manager) Row_wll();
+#endif
+
+#if CC_ALG != HSTORE
+	manager->init(this);
+#endif
+	_lti_addr = NULL;
 }
 
 void row_t::init_manager(row_t * row) {
@@ -118,6 +216,31 @@ char * row_t::get_value(char * col_name) {
 	return &data[pos];
 }
 
+
+
+char *
+row_t::get_value(Catalog *schema, uint32_t col_id, char *data)
+{
+	return &data[schema->get_field_index(col_id)];
+}
+
+void row_t::set_value(Catalog *schema, uint32_t col_id, char *data, char *value)
+{
+	memcpy(&data[schema->get_field_index(col_id)],
+		   value,
+		   schema->get_field_size(col_id));
+}
+
+char *
+row_t::get_data(txn_man *txn, access_t type)
+{
+	return data;
+}
+
+
+
+
+
 char * row_t::get_data() { return data; }
 
 void row_t::set_data(char * data, uint64_t size) { 
@@ -126,6 +249,13 @@ void row_t::set_data(char * data, uint64_t size) {
 // copy from the src to this
 void row_t::copy(row_t * src) {
 	set_data(src->get_data(), src->get_tuple_size());
+}
+
+
+
+void row_t::copy(char *src)
+{
+	set_data(src, get_tuple_size());
 }
 
 void row_t::free_row() {
@@ -309,3 +439,93 @@ void row_t::return_row(access_t type, txn_man * txn, row_t * row) {
 #endif
 }
 
+void row_t::return_row(access_t type, txn_man *txn, char *data, RC rc_in)
+{
+//uint64_t starttime = get_sys_clock();
+#if CC_ALG == WAIT_DIE || CC_ALG == NO_WAIT || CC_ALG == DL_DETECT
+	//assert (row == NULL || row == this || type == XP);
+	if (ROLL_BACK && type == XP)
+	{ // recover from previous writes.
+		//this->copy(row);
+		copy(data); // if rollback
+	}
+
+#if !USE_LOCKTABLE
+#if LOG_ALGORITHM == LOG_TAURUS
+	if (rc_in != Abort)
+	{
+		uint64_t update_start = get_sys_clock();
+		if (type == WR)
+		{
+#if UPDATE_SIMD
+			SIMD_PREFIX *LV = (SIMD_PREFIX *)txn->lsn_vector;
+			SIMD_PREFIX *writeLV = (SIMD_PREFIX *)lsn_vec;
+			*writeLV = MM_MAX(*LV, *writeLV);
+#else
+			for (uint32_t i = 0; i < G_NUM_LOGGER; i++)
+				if (lsn_vec[i] < txn->lsn_vector[i])
+					lsn_vec[i] = txn->lsn_vector[i];
+#endif
+		}
+		else
+		{
+#if LOG_TYPE == LOG_COMMAND || !DISTINGUISH_COMMAND_LOGGING
+#if UPDATE_SIMD
+			SIMD_PREFIX *LV = (SIMD_PREFIX *)txn->lsn_vector;
+			SIMD_PREFIX *local_readLV = (SIMD_PREFIX *)readLV;
+			*local_readLV = MM_MAX(*LV, *local_readLV);
+#else
+			for (uint32_t i = 0; i < G_NUM_LOGGER; ++i)
+				if (readLV[i] < txn->lsn_vector[i])
+					readLV[i] = txn->lsn_vector[i];
+#endif
+#endif
+		}
+		INC_INT_STATS(time_lv_overhead, get_sys_clock() - update_start);
+	}
+#elif LOG_ALGORITHM == LOG_SERIAL
+	if (rc_in != Abort && lsn[0] < txn->_max_lsn)
+		lsn[0] = txn->_max_lsn;
+#endif
+#endif
+
+	this->manager->lock_release(txn);
+#elif CC_ALG == TIMESTAMP || CC_ALG == MVCC
+	// for RD or SCAN or XP, the row should be deleted.
+	// because all WR should be companied by a RD
+	// for MVCC RD, the row is not copied, so no need to free.
+#if CC_ALG == TIMESTAMP
+	if (type == RD || type == SCAN)
+	{
+		row->free_row();
+		mem_allocator.free(row, sizeof(row_t));
+	}
+#endif
+	if (type == XP)
+	{
+		this->manager->access(txn, XP_REQ, row);
+	}
+	else if (type == WR)
+	{
+		assert(type == WR && row != NULL);
+		assert(row->get_schema() == this->get_schema());
+		RC rc = this->manager->access(txn, W_REQ, row);
+		assert(rc == RCOK);
+	}
+#elif CC_ALG == OCC
+	assert(row != NULL);
+	if (type == WR)
+		manager->write(row, txn->end_ts);
+	row->free_row();
+	mem_allocator.free(row, sizeof(row_t));
+	return;
+#elif CC_ALG == TICTOC || CC_ALG == SILO
+	assert(data != NULL);
+	return;
+#elif CC_ALG == HSTORE || CC_ALG == VLL
+	return;
+#else
+	assert(false);
+#endif
+	//INC_INT_STATS(time_debug1, get_sys_clock() - starttime);
+}

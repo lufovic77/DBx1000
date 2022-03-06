@@ -40,6 +40,13 @@
 
 #define ASSERT(cond) assert(cond)
 
+//////////////////////////////////////////////////
+// Global Data Structure
+//////////////////////////////////////////////////
+#define GET_THD_ID glob_manager->get_thd_id()
+#define GET_WORKLOAD glob_manager->get_workload()
+
+
 
 /************************************************/
 // STACK helper (push & pop)

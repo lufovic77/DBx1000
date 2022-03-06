@@ -7,6 +7,14 @@
 #include "plock.h"
 #include "occ.h"
 #include "vll.h"
+#include "log.h"
+#include "serial_log.h"
+#include "parallel_log.h"
+#include "plover_log.h"
+#include "log_pending_table.h"
+#include "log_recover_table.h"
+#include "free_queue.h"
+
 
 mem_alloc mem_allocator;
 Stats stats;
@@ -15,9 +23,46 @@ Manager * glob_manager;
 Query_queue * query_queue;
 Plock part_lock_man;
 OptCC occ_man;
+
+
+
+
+// Logging
+
+#if LOG_ALGORITHM == LOG_SERIAL
+SerialLogManager * log_manager;
+#elif LOG_ALGORITHM == LOG_TAURUS
+//LogManager ** log_manager;
+TaurusLogManager * log_manager;
+#elif LOG_ALGORITHM == LOG_BATCH
+LogManager ** log_manager;
+#elif LOG_ALGORITHM == LOG_PARALLEL
+LogManager ** log_manager; 
+LogRecoverTable * log_recover_table;
+uint64_t * starting_lsn;
+#elif LOG_ALGORITHM == LOG_PLOVER
+PloverLogManager * log_manager;
+#endif
+double g_epoch_period = EPOCH_PERIOD;
+uint32_t ** next_log_file_epoch;
+uint32_t g_num_pools = LOG_PARALLEL_REC_NUM_POOLS;
+uint32_t g_log_chunk_size = LOG_CHUNK_SIZE;
+
+FreeQueue ** free_queue_recover_state; 
+bool g_log_recover = LOG_RECOVER;
+uint32_t g_num_logger = NUM_LOGGER;
+uint32_t g_num_disk = 0;
+bool g_no_flush = LOG_NO_FLUSH;
+
+
+
+
+
+
 #if CC_ALG == VLL
 VLLMan vll_man;
 #endif 
+
 
 bool volatile warmup_finish = false;
 bool volatile enable_thread_mem_pool = false;

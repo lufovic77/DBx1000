@@ -19,7 +19,10 @@
 #include <sstream>
 #include <time.h> 
 #include <sys/time.h>
+
 #include <math.h>
+#include <queue>
+#include <boost/lockfree/queue.hpp>
 
 #include "pthread.h"
 #include "config.h"
@@ -28,6 +31,8 @@
 #ifndef NOGRAPHITE
 #include "carbon_user.h"
 #endif
+
+#include "barrier.h"
 
 using namespace std;
 
@@ -39,6 +44,18 @@ class Query_queue;
 class Plock;
 class OptCC;
 class VLLMan;
+class LogManager;
+class SerialLogManager;
+class TaurusLogManager;
+class PloverLogManager;
+class ParallelLogManager;
+class LogPendingTable;
+class LogRecoverTable;
+class RecoverState; 
+class FreeQueue;
+struct DispatchJob;
+struct GCJob;
+
 
 typedef uint32_t UInt32;
 typedef int32_t SInt32;
@@ -57,6 +74,44 @@ extern Manager * glob_manager;
 extern Query_queue * query_queue;
 extern Plock part_lock_man;
 extern OptCC occ_man;
+
+
+
+// Logging
+#if LOG_ALGORITHM == LOG_SERIAL
+extern SerialLogManager * log_manager;
+#elif LOG_ALGORITHM == LOG_TAURUS
+//extern LogManager ** log_manager;
+extern TaurusLogManager * log_manager;
+#elif LOG_ALGORITHM == LOG_BATCH
+extern LogManager ** log_manager;
+// for batch recovery 
+#elif LOG_ALGORITHM == LOG_PARALLEL
+extern LogManager ** log_manager;
+extern LogRecoverTable * log_recover_table;
+extern uint64_t * starting_lsn;
+#elif LOG_ALGORITHM == LOG_PLOVER
+extern PloverLogManager * log_manager;
+#endif
+extern double g_epoch_period;
+extern uint32_t ** next_log_file_epoch;
+extern uint32_t g_num_pools;
+extern uint32_t g_log_chunk_size;
+extern bool g_ramdisk;
+
+extern uint64_t g_log_buffer_size;
+extern FreeQueue ** free_queue_recover_state; 
+extern bool g_log_recover;
+extern uint32_t g_num_logger;
+extern uint32_t g_num_disk;
+extern bool g_no_flush;
+extern uint32_t g_max_log_entry_size;
+extern uint32_t g_scan_window;
+
+
+
+
+
 #if CC_ALG == VLL
 extern VLLMan vll_man;
 #endif
@@ -130,6 +185,18 @@ enum latch_t {LATCH_EX, LATCH_SH, LATCH_NONE};
 enum idx_acc_t {INDEX_INSERT, INDEX_READ, INDEX_NONE};
 typedef uint64_t idx_key_t; // key id for index
 typedef uint64_t (*func_ptr)(idx_key_t);	// part_id func_ptr(index_key);
+
+
+#if UPDATE_SIMD
+typedef uint32_t lsnType; // 256bit
+#else
+typedef uint64_t lsnType;
+#endif
+
+#define STR(x)   #x
+#define SHOW_DEFINE(x) printf("%s=%s\n", #x, STR(x))
+
+
 
 /* general concurrency control */
 enum access_t {RD, WR, XP, SCAN};

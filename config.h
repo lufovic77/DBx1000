@@ -99,9 +99,27 @@
 /***********************************************/
 // Logging
 /***********************************************/
-#define LOG_COMMAND					false
 #define LOG_REDO					false
 #define LOG_BATCH_TIME				10 // in ms
+
+
+#define LOG_ALGORITHM LOG_BATCH
+#define LOG_TYPE LOG_DATA
+#define LOG_RAM_DISK				false
+#define LOG_NO_FLUSH			 	false
+#define LOG_RECOVER                 false
+#define LOG_GARBAGE_COLLECT         false
+#define LOG_BUFFER_SIZE				(1048576 * 50)	// in bytes
+// For LOG_PARALLEL
+#define LOG_PARALLEL_BUFFER_FILL	false 
+#define NUM_LOGGER					1 // the number of loggers
+#define LOG_PARALLEL_NUM_BUCKETS    4000000	// should equal the number of recovered txns
+#define MAX_LOG_ENTRY_SIZE			16384 // in Bytes
+#define LOG_FLUSH_INTERVAL 0
+#define TRACK_WAR_DEPENDENCY		true // necessary only for logical or command logging.  
+#define LOG_PARALLEL_REC_NUM_POOLS  THREAD_CNT 
+#define LOG_CHUNK_SIZE  			(1048576 * 10)
+#define NEXT_TXN_OPT				true
 
 /***********************************************/
 // Benchmark
@@ -214,5 +232,112 @@ extern TestCases					g_test_case;
 #define TS_CAS						2
 #define TS_HW						3
 #define TS_CLOCK					4
+
+// Buffer size for logging
+#define BUFFER_SIZE                 10
+
+// Logging Algorithm
+#define LOG_NO						1
+#define LOG_SERIAL                  2
+#define LOG_BATCH                   3
+#define LOG_PARALLEL                4
+#define LOG_TAURUS					5
+#define LOG_PLOVER					6
+// Logging type
+#define LOG_DATA					1
+#define LOG_COMMAND					2
+/************************************/
+// LOG TAURUS
+/************************************/
+#define EVICT_FREQ					10000
+#define WITHOLD_LOG					false 
+#define COMPRESS_LSN_LT				false
+#define COMPRESS_LSN_LOG			false // false
+#define PSN_FLUSH_FREQ				1000
+#define LOCKTABLE_EVICT_BUFFER		30000
+#define SOLVE_LIVELOCK				true
+#define POOLSIZE_WAIT				2000 // if pool size is too small it might cause live lock.
+#define PER_WORKER_RECOVERY 		(false)
+#define RECOVER_BUFFER_PERC			(0.5)
+#define TAURUS_RECOVER_BATCH_SIZE	(500)
+#define ASYNC_IO					true
+#define DECODE_AT_WORKER			false
+#define UPDATE_SIMD (true)
+#define SCAN_WINDOW 2
+#define BIG_HASH_TABLE_MODE (true)
+#define PROCESS_DEPENDENCY_LOGGER (false)
+#define PARTITION_AWARE				false // this switch does not bring much benefit for YCSB
+#define TAURUS_CHUNK				false
+#define TAURUS_CHUNK_MEMCPY			true
+#define DISTINGUISH_COMMAND_LOGGING	true
+// big hash table mode means locktable evict buffer is infinite.
+/************************************/
+// LOG BATCH
+/************************************/
+#define MAX_NUM_EPOCH				5000
+/************************************/
+// LOG GENERAL
+/************************************/
+#define RECOVERY_FULL_THR			false // true // false // true
+#define RECOVER_SINGLE_RECOVERLV	false // use only with a single queue
+
+#define RECOVER_TAURUS_LOCKFREE		false  // Use the SPMC-Pool for each logger
+#define POOL_SE_SPACE (8)
+
+#define FLUSH_BLOCK_SIZE		1048576 // twice as best among 4096 40960 409600 4096000
+#define READ_BLOCK_SIZE 419430400
+
+#define AFFINITY true // true
+
+/************************************/
+// LOG PLOVER
+/************************************/
+
+#define PLOVER_NO_WAIT				true
+
+
+/************************************/
+// SIMD Config
+/************************************/
+
+#define MAX_LOGGER_NUM_SIMD 16
+#define SIMD_PREFIX __m512i // __m256i
+#define MM_MAX _mm512_max_epu32 //_mm256_max_epu32
+#define MM_MASK __mmask16
+#define MM_CMP _mm512_cmp_epu32_mask
+#define MM_EXP_LOAD _mm512_maskz_expandloadu_epi32
+#define MM_INTERLEAVE_MASK 0x5555
+#if UPDATE_SIMD
+#define G_NUM_LOGGER MAX_LOGGER_NUM_SIMD
+#else
+#define G_NUM_LOGGER g_num_logger
+#endif
+
+#define NUM_CORES_PER_SLOT	(24)
+#define NUMA_NODE_NUM	(2)
+#define HYPER_THREADING_FACTOR (2) // in total 24 * 2 * 2 = 96
+
+/************************************/
+#define OUTPUT_AVG_RATIO 0.5
+
+#include "config-assertions.h"
+
+#define MM_MALLOC(x,y) _mm_malloc(x, ALIGN_SIZE)
+#define MM_FREE(x,y) _mm_free(x)
+#include "numa.h"
+#define NUMA_MALLOC(x,y) numa_alloc_onnode(x, ((y) % g_num_logger) % NUMA_NODE_NUM)
+#define NUMA_FREE(x,y) numa_free(x, y)
+
+#if WORKLOAD == YCSB && CC_ALG == SILO
+#define MALLOC NUMA_MALLOC
+#define FREE NUMA_FREE
+#else
+#define MALLOC MM_MALLOC
+#define FREE MM_FREE
+#endif
+
+///////// MISC
+#define WORK_IN_PROGRESS true
+
 
 #endif

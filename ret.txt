@@ -1,0 +1,1593 @@
+g++ -MM -MT system/log_recover_table.o -MF system/log_recover_table.d -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 system/log_recover_table.cpp
+g++ -MM -MT system/logging_thread.o -MF system/logging_thread.d -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 system/logging_thread.cpp
+g++ -MM -MT system/log_pending_table.o -MF system/log_pending_table.d -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 system/log_pending_table.cpp
+g++ -MM -MT system/free_queue.o -MF system/free_queue.d -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 system/free_queue.cpp
+g++ -MM -MT system/barrier.o -MF system/barrier.d -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 system/barrier.cpp
+g++ -MM -MT storage/parallel_log.o -MF storage/parallel_log.d -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 storage/parallel_log.cpp
+system/logging_thread.cpp:5:10: fatal error: locktable.h: No such file or directory
+ #include "locktable.h"
+          ^~~~~~~~~~~~~
+compilation terminated.
+g++ -MM -MT system/logging_thread.o -MF system/logging_thread.d -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 system/logging_thread.cpp
+system/logging_thread.cpp:5:10: fatal error: locktable.h: No such file or directory
+ #include "locktable.h"
+          ^~~~~~~~~~~~~
+compilation terminated.
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o storage/parallel_log.o storage/parallel_log.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o storage/serial_log.o storage/serial_log.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o storage/taurus_log.o storage/taurus_log.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o storage/plover_log.o storage/plover_log.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o storage/log.o storage/log.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o storage/ramdisk.o storage/ramdisk.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o system/barrier.o system/barrier.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o system/free_queue.o system/free_queue.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o system/log_pending_table.o system/log_pending_table.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o system/logging_thread.o system/logging_thread.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system -D NOGRAPHITE=1 -Werror -O3 -o system/log_recover_table.o system/log_recover_table.cpp
+system/logging_thread.cpp:5:10: fatal error: locktable.h: No such file or directory
+ #include "locktable.h"
+          ^~~~~~~~~~~~~
+compilation terminated.
+Makefile:28: recipe for target 'system/logging_thread.o' failed
+make: *** [system/logging_thread.o] Error 1
+make: *** Waiting for unfinished jobs....
+In file included from storage/serial_log.cpp:2:0:
+storage/serial_log.h:18:66: error: 'lsnType' has not been declared
+     uint64_t serialLogTxn(char * log_entry, uint32_t entry_size, lsnType tid=-1);
+                                                                  ^~~~~~~
+storage/serial_log.h:25:2: error: 'LogManager' does not name a type; did you mean 'Manager'?
+  LogManager ** _logger;
+  ^~~~~~~~~~
+  Manager
+storage/serial_log.cpp: In constructor 'SerialLogManager::SerialLogManager()':
+storage/serial_log.cpp:25:65: error: 'GET_THD_ID' was not declared in this scope
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                                                 ^~~~~~~~~~
+storage/serial_log.cpp:25:65: note: suggested alternative: 'SIGEV_THREAD_ID'
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                                                 ^~~~~~~~~~
+                                                                 SIGEV_THREAD_ID
+storage/serial_log.cpp:25:40: error: 'MALLOC' was not declared in this scope
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                        ^~~~~~
+storage/serial_log.cpp:25:40: note: suggested alternative: 'TS_ALLOC'
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                        ^~~~~~
+                                        TS_ALLOC
+storage/serial_log.cpp: In destructor 'SerialLogManager::~SerialLogManager()':
+storage/serial_log.cpp:34:26: error: 'g_num_logger' was not declared in this scope
+  for(uint32_t i = 0; i < g_num_logger; i++)
+                          ^~~~~~~~~~~~
+storage/serial_log.cpp:34:26: note: suggested alternative: 'g_num_wh'
+  for(uint32_t i = 0; i < g_num_logger; i++)
+                          ^~~~~~~~~~~~
+                          g_num_wh
+storage/serial_log.cpp:35:10: error: '_logger' was not declared in this scope
+   delete _logger[i];
+          ^~~~~~~
+storage/serial_log.cpp:36:9: error: '_logger' was not declared in this scope
+  delete _logger;
+         ^~~~~~~
+storage/serial_log.cpp: In member function 'void SerialLogManager::init()':
+storage/serial_log.cpp:41:65: error: 'GET_THD_ID' was not declared in this scope
+  lastLoggedTID = (volatile uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                                                 ^~~~~~~~~~
+storage/serial_log.cpp:41:65: note: suggested alternative: 'SIGEV_THREAD_ID'
+  lastLoggedTID = (volatile uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                                                 ^~~~~~~~~~
+                                                                 SIGEV_THREAD_ID
+storage/serial_log.cpp:41:40: error: 'MALLOC' was not declared in this scope
+  lastLoggedTID = (volatile uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                        ^~~~~~
+storage/serial_log.cpp:41:40: note: suggested alternative: 'TS_ALLOC'
+  lastLoggedTID = (volatile uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                        ^~~~~~
+                                        TS_ALLOC
+storage/serial_log.cpp:45:2: error: '_logger' was not declared in this scope
+  _logger = new LogManager * [g_num_logger];
+  ^~~~~~~
+storage/serial_log.cpp:45:30: error: 'g_num_logger' was not declared in this scope
+  _logger = new LogManager * [g_num_logger];
+                              ^~~~~~~~~~~~
+storage/serial_log.cpp:45:30: note: suggested alternative: 'g_num_wh'
+  _logger = new LogManager * [g_num_logger];
+                              ^~~~~~~~~~~~
+                              g_num_wh
+storage/serial_log.cpp: In member function 'bool SerialLogManager::tryFlush()':
+storage/serial_log.cpp:91:9: error: '_logger' was not declared in this scope
+  return _logger[0]->tryFlush();
+         ^~~~~~~
+storage/serial_log.cpp: At global scope:
+storage/serial_log.cpp:95:71: error: 'lsnType' has not been declared
+ SerialLogManager::serialLogTxn(char * log_entry, uint32_t entry_size, lsnType tid)
+                                                                       ^~~~~~~
+storage/serial_log.cpp: In member function 'uint64_t SerialLogManager::serialLogTxn(char*, uint32_t, int)':
+storage/serial_log.cpp:104:16: error: 'log_data' was not declared in this scope
+  INC_INT_STATS(log_data, entry_size);
+                ^~~~~~~~
+storage/serial_log.cpp:104:16: note: suggested alternative: 'logLatch'
+  INC_INT_STATS(log_data, entry_size);
+                ^~~~~~~~
+                logLatch
+storage/serial_log.cpp:104:2: error: 'INC_INT_STATS' was not declared in this scope
+  INC_INT_STATS(log_data, entry_size);
+  ^~~~~~~~~~~~~
+storage/serial_log.cpp:104:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS(log_data, entry_size);
+  ^~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/serial_log.cpp:125:12: error: '_logger' was not declared in this scope
+   newlsn = _logger[0]->logTxn(log_entry, entry_size, 0, false);
+            ^~~~~~~
+storage/serial_log.cpp: In member function 'uint64_t SerialLogManager::get_persistent_lsn()':
+storage/serial_log.cpp:146:9: error: '_logger' was not declared in this scope
+  return _logger[0]->get_persistent_lsn();
+         ^~~~~~~
+storage/ramdisk.cpp: In constructor 'RamDisk::RamDisk(std::__cxx11::string)':
+storage/ramdisk.cpp:32:8: error: 'g_log_recover' was not declared in this scope
+    if (g_log_recover)
+        ^~~~~~~~~~~~~
+In file included from /usr/include/c++/7/cassert:44:0,
+                 from ./system/global.h:7,
+                 from storage/ramdisk.h:3,
+                 from storage/ramdisk.cpp:4:
+storage/ramdisk.cpp: In member function 'void RamDisk::flush(uint64_t)':
+storage/ramdisk.cpp:110:10: error: 'g_log_recover' was not declared in this scope
+  assert(!g_log_recover);
+          ^
+storage/ramdisk.cpp: In member function 'void RamDisk::load()':
+storage/ramdisk.cpp:134:37: error: 'class Manager' has no member named 'get_thd_id'; did you mean 'get_ts'?
+   _file_name.c_str(), glob_manager->get_thd_id(), _total_size, _total_size / _block_size + 1);
+                                     ^~~~~~~~~~
+                                     get_ts
+Makefile:28: recipe for target 'storage/serial_log.o' failed
+make: *** [storage/serial_log.o] Error 1
+In file included from storage/taurus_log.cpp:2:0:
+storage/taurus_log.h:32:66: error: 'lsnType' has not been declared
+     uint64_t serialLogTxn(char * log_entry, uint32_t entry_size, lsnType * lsn_vec, uint32_t designated_logger_id);
+                                                                  ^~~~~~~
+In file included from storage/log.cpp:5:0:
+storage/parallel_log.h: In member function 'uint32_t ParallelLogManager::get_logger_id(uint64_t)':
+storage/parallel_log.h:88:63: error: 'g_num_logger' was not declared in this scope
+     uint32_t get_logger_id(uint64_t thd_id) { return thd_id % g_num_logger; }
+                                                               ^~~~~~~~~~~~
+storage/taurus_log.h:43:5: error: 'recoverLV_t' does not name a type
+     recoverLV_t ** recoverLVSPSC __attribute__((aligned(64)));
+     ^~~~~~~~~~~
+storage/parallel_log.h:88:63: note: suggested alternative: '_logger'
+     uint32_t get_logger_id(uint64_t thd_id) { return thd_id % g_num_logger; }
+                                                               ^~~~~~~~~~~~
+                                                               _logger
+In file included from storage/log.cpp:6:0:
+storage/taurus_log.h: At global scope:
+storage/taurus_log.h:32:66: error: 'lsnType' has not been declared
+     uint64_t serialLogTxn(char * log_entry, uint32_t entry_size, lsnType * lsn_vec, uint32_t designated_logger_id);
+                                                                  ^~~~~~~
+storage/taurus_log.h:44:5: error: 'recoverLV_t' does not name a type
+     recoverLV_t ** maxLVSPSC __attribute__((aligned(64)));
+     ^~~~~~~~~~~
+storage/taurus_log.h:43:5: error: 'recoverLV_t' does not name a type
+     recoverLV_t ** recoverLVSPSC __attribute__((aligned(64)));
+     ^~~~~~~~~~~
+storage/taurus_log.h:45:5: error: 'recoverLV_t' does not name a type
+     recoverLV_t * recoverLVSPSC_min __attribute__((aligned(64)));
+     ^~~~~~~~~~~
+storage/taurus_log.h:44:5: error: 'recoverLV_t' does not name a type
+     recoverLV_t ** maxLVSPSC __attribute__((aligned(64)));
+     ^~~~~~~~~~~
+storage/taurus_log.h:45:5: error: 'recoverLV_t' does not name a type
+     recoverLV_t * recoverLVSPSC_min __attribute__((aligned(64)));
+     ^~~~~~~~~~~
+storage/taurus_log.h:52:2: error: 'LogManager' does not name a type; did you mean 'Manager'?
+  LogManager ** _logger __attribute__((aligned(64)));
+  ^~~~~~~~~~
+  Manager
+Makefile:28: recipe for target 'storage/ramdisk.o' failed
+make: *** [storage/ramdisk.o] Error 1
+In file included from /usr/include/c++/7/cassert:44:0,
+                 from storage/row.h:3,
+                 from storage/plover_log.h:6,
+                 from storage/plover_log.cpp:2:
+storage/plover_log.h: In function 'uint64_t logPartition(uint64_t)':
+storage/plover_log.h:17:26: error: 'ALIGN_SIZE' was not declared in this scope
+  assert(sizeof(row_t) == ALIGN_SIZE);
+                          ^
+storage/plover_log.h:17:26: note: suggested alternative: 'CL_SIZE'
+In file included from storage/plover_log.cpp:2:0:
+storage/plover_log.h:18:34: error: 'g_num_logger' was not declared in this scope
+  return (key / ALIGN_SIZE / 2) % g_num_logger;
+                                  ^~~~~~~~~~~~
+storage/plover_log.h:18:34: note: suggested alternative: 'g_num_wh'
+  return (key / ALIGN_SIZE / 2) % g_num_logger;
+                                  ^~~~~~~~~~~~
+                                  g_num_wh
+storage/log.cpp: In constructor 'LogManager::LogManager(uint32_t)':
+storage/log.cpp:29:21: error: 'g_log_buffer_size' was not declared in this scope
+  _log_buffer_size = g_log_buffer_size;
+                     ^~~~~~~~~~~~~~~~~
+storage/plover_log.h: At global scope:
+storage/plover_log.h:36:5: error: 'LogManager' does not name a type; did you mean 'Manager'?
+     LogManager ** _logger __attribute__((aligned(64)));
+     ^~~~~~~~~~
+     Manager
+storage/log.cpp:29:21: note: suggested alternative: '_log_buffer_size'
+  _log_buffer_size = g_log_buffer_size;
+                     ^~~~~~~~~~~~~~~~~
+                     _log_buffer_size
+storage/log.cpp:30:6: error: 'g_log_recover' was not declared in this scope
+  if (g_log_recover) {
+      ^~~~~~~~~~~~~
+storage/plover_log.cpp: In constructor 'PloverLogManager::PloverLogManager()':
+storage/plover_log.cpp:27:65: error: 'GET_THD_ID' was not declared in this scope
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                                                 ^~~~~~~~~~
+storage/log.cpp:48:40: error: 'g_num_logger' was not declared in this scope
+   uint64_t num_worker = g_thread_cnt / g_num_logger;
+                                        ^~~~~~~~~~~~
+storage/log.cpp:48:40: note: suggested alternative: 'num_worker'
+   uint64_t num_worker = g_thread_cnt / g_num_logger;
+                                        ^~~~~~~~~~~~
+                                        num_worker
+storage/log.cpp:49:41: error: 'MALLOC' was not declared in this scope
+   rasterizedLSN = (volatile uint64_t**) MALLOC(sizeof(uint64_t*) * num_worker, logger_id);
+                                         ^~~~~~
+storage/log.cpp:49:41: note: suggested alternative: 'TS_ALLOC'
+   rasterizedLSN = (volatile uint64_t**) MALLOC(sizeof(uint64_t*) * num_worker, logger_id);
+                                         ^~~~~~
+                                         TS_ALLOC
+storage/log.cpp:75:34: error: 'MALLOC' was not declared in this scope
+    _filled_lsn[i] = (uint64_t *) MALLOC(sizeof(uint64_t), logger_id);
+                                  ^~~~~~
+storage/log.cpp:75:34: note: suggested alternative: 'TS_ALLOC'
+    _filled_lsn[i] = (uint64_t *) MALLOC(sizeof(uint64_t), logger_id);
+                                  ^~~~~~
+                                  TS_ALLOC
+storage/log.cpp:88:5: error: 'g_flush_interval' was not declared in this scope
+  if(g_flush_interval==0)
+     ^~~~~~~~~~~~~~~~
+storage/plover_log.cpp:27:65: note: suggested alternative: 'SIGEV_THREAD_ID'
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                                                 ^~~~~~~~~~
+                                                                 SIGEV_THREAD_ID
+storage/plover_log.cpp:27:40: error: 'MALLOC' was not declared in this scope
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                        ^~~~~~
+storage/log.cpp:88:5: note: suggested alternative: '_flush_interval'
+  if(g_flush_interval==0)
+     ^~~~~~~~~~~~~~~~
+     _flush_interval
+storage/log.cpp:92:34: error: 'MALLOC' was not declared in this scope
+  _last_flush_time = (uint64_t *) MALLOC(sizeof(uint64_t), logger_id);
+                                  ^~~~~~
+storage/log.cpp:92:34: note: suggested alternative: 'TS_ALLOC'
+  _last_flush_time = (uint64_t *) MALLOC(sizeof(uint64_t), logger_id);
+                                  ^~~~~~
+                                  TS_ALLOC
+storage/plover_log.cpp:27:40: note: suggested alternative: 'TS_ALLOC'
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                        ^~~~~~
+                                        TS_ALLOC
+storage/log.cpp:100:58: error: 'g_max_log_entry_size' was not declared in this scope
+  _buffer = (char *) numa_alloc_onnode(_log_buffer_size + g_max_log_entry_size, (logger_id % g_num_logger) % NUMA_NODE_NUM);
+                                                          ^~~~~~~~~~~~~~~~~~~~
+storage/plover_log.cpp: In destructor 'PloverLogManager::~PloverLogManager()':
+storage/plover_log.cpp:34:26: error: 'g_num_logger' was not declared in this scope
+  for(uint32_t i = 0; i < g_num_logger; i++)
+                          ^~~~~~~~~~~~
+storage/log.cpp:100:58: note: suggested alternative: 'get_next_log_entry'
+  _buffer = (char *) numa_alloc_onnode(_log_buffer_size + g_max_log_entry_size, (logger_id % g_num_logger) % NUMA_NODE_NUM);
+                                                          ^~~~~~~~~~~~~~~~~~~~
+                                                          get_next_log_entry
+storage/log.cpp:100:93: error: 'g_num_logger' was not declared in this scope
+  _buffer = (char *) numa_alloc_onnode(_log_buffer_size + g_max_log_entry_size, (logger_id % g_num_logger) % NUMA_NODE_NUM);
+                                                                                             ^~~~~~~~~~~~
+storage/plover_log.cpp:34:26: note: suggested alternative: 'g_num_wh'
+  for(uint32_t i = 0; i < g_num_logger; i++)
+                          ^~~~~~~~~~~~
+                          g_num_wh
+storage/plover_log.cpp:37:3: error: '_logger' was not declared in this scope
+   _logger[i]->~LogManager();
+   ^~~~~~~
+storage/log.cpp:100:93: note: suggested alternative: 'g_num_wh'
+  _buffer = (char *) numa_alloc_onnode(_log_buffer_size + g_max_log_entry_size, (logger_id % g_num_logger) % NUMA_NODE_NUM);
+                                                                                             ^~~~~~~~~~~~
+                                                                                             g_num_wh
+storage/log.cpp:100:109: error: 'NUMA_NODE_NUM' was not declared in this scope
+  _buffer = (char *) numa_alloc_onnode(_log_buffer_size + g_max_log_entry_size, (logger_id % g_num_logger) % NUMA_NODE_NUM);
+                                                                                                             ^~~~~~~~~~~~~
+storage/plover_log.cpp:38:3: error: 'FREE' was not declared in this scope
+   FREE(_logger[i], sizeof(LogManager));
+   ^~~~
+storage/log.cpp:100:109: note: suggested alternative: 'NUMA_NUM_NODES'
+  _buffer = (char *) numa_alloc_onnode(_log_buffer_size + g_max_log_entry_size, (logger_id % g_num_logger) % NUMA_NODE_NUM);
+                                                                                                             ^~~~~~~~~~~~~
+                                                                                                             NUMA_NUM_NODES
+storage/plover_log.cpp:38:3: note: suggested alternative: 'FILE'
+   FREE(_logger[i], sizeof(LogManager));
+   ^~~~
+   FILE
+storage/plover_log.cpp:42:7: error: '_logger' was not declared in this scope
+  FREE(_logger, sizeof(LogManager*) * g_num_logger);
+       ^~~~~~~
+storage/log.cpp: In destructor 'LogManager::~LogManager()':
+storage/log.cpp:113:7: error: 'g_log_recover' was not declared in this scope
+  if (!g_log_recover && !g_no_flush) {
+       ^~~~~~~~~~~~~
+storage/log.cpp:113:25: error: 'g_no_flush' was not declared in this scope
+  if (!g_log_recover && !g_no_flush) {
+                         ^~~~~~~~~~
+storage/log.cpp:113:25: note: suggested alternative: 'g_no_dl'
+  if (!g_log_recover && !g_no_flush) {
+                         ^~~~~~~~~~
+                         g_no_dl
+storage/log.cpp:121:22: error: 'log_bytes' was not declared in this scope
+   INC_FLOAT_STATS_V0(log_bytes, end_lsn - start_lsn);
+                      ^~~~~~~~~
+storage/plover_log.cpp:42:38: error: 'g_num_logger' was not declared in this scope
+  FREE(_logger, sizeof(LogManager*) * g_num_logger);
+                                      ^~~~~~~~~~~~
+storage/log.cpp:121:3: error: 'INC_FLOAT_STATS_V0' was not declared in this scope
+   INC_FLOAT_STATS_V0(log_bytes, end_lsn - start_lsn);
+   ^~~~~~~~~~~~~~~~~~
+storage/plover_log.cpp:42:38: note: suggested alternative: 'g_num_wh'
+  FREE(_logger, sizeof(LogManager*) * g_num_logger);
+                                      ^~~~~~~~~~~~
+                                      g_num_wh
+storage/plover_log.cpp:42:2: error: 'FREE' was not declared in this scope
+  FREE(_logger, sizeof(LogManager*) * g_num_logger);
+  ^~~~
+storage/plover_log.cpp:42:2: note: suggested alternative: 'FILE'
+  FREE(_logger, sizeof(LogManager*) * g_num_logger);
+  ^~~~
+  FILE
+storage/plover_log.cpp: In member function 'void PloverLogManager::init()':
+storage/plover_log.cpp:47:83: error: 'g_num_logger' was not declared in this scope
+  gsn_mapping = (std::queue<roadpoint> **) MALLOC(sizeof(std::queue<roadpoint>*) * g_num_logger, GET_THD_ID);
+                                                                                   ^~~~~~~~~~~~
+storage/log.cpp:121:3: note: suggested alternative: 'INC_GLOB_STATS'
+   INC_FLOAT_STATS_V0(log_bytes, end_lsn - start_lsn);
+   ^~~~~~~~~~~~~~~~~~
+   INC_GLOB_STATS
+storage/log.cpp:133:47: error: 'g_max_log_entry_size' was not declared in this scope
+  numa_free((void*)_buffer, _log_buffer_size + g_max_log_entry_size);
+                                               ^~~~~~~~~~~~~~~~~~~~
+storage/plover_log.cpp:47:83: note: suggested alternative: 'g_num_wh'
+  gsn_mapping = (std::queue<roadpoint> **) MALLOC(sizeof(std::queue<roadpoint>*) * g_num_logger, GET_THD_ID);
+                                                                                   ^~~~~~~~~~~~
+                                                                                   g_num_wh
+storage/plover_log.cpp:47:97: error: 'GET_THD_ID' was not declared in this scope
+  gsn_mapping = (std::queue<roadpoint> **) MALLOC(sizeof(std::queue<roadpoint>*) * g_num_logger, GET_THD_ID);
+                                                                                                 ^~~~~~~~~~
+storage/plover_log.cpp:47:97: note: suggested alternative: 'SIGEV_THREAD_ID'
+  gsn_mapping = (std::queue<roadpoint> **) MALLOC(sizeof(std::queue<roadpoint>*) * g_num_logger, GET_THD_ID);
+                                                                                                 ^~~~~~~~~~
+                                                                                                 SIGEV_THREAD_ID
+storage/plover_log.cpp:47:43: error: 'MALLOC' was not declared in this scope
+  gsn_mapping = (std::queue<roadpoint> **) MALLOC(sizeof(std::queue<roadpoint>*) * g_num_logger, GET_THD_ID);
+                                           ^~~~~~
+storage/log.cpp:133:47: note: suggested alternative: 'get_next_log_entry'
+  numa_free((void*)_buffer, _log_buffer_size + g_max_log_entry_size);
+                                               ^~~~~~~~~~~~~~~~~~~~
+                                               get_next_log_entry
+storage/log.cpp: In member function 'void LogManager::init(std::__cxx11::string)':
+storage/log.cpp:139:6: error: 'g_no_flush' was not declared in this scope
+  if (g_no_flush)
+      ^~~~~~~~~~
+storage/plover_log.cpp:47:43: note: suggested alternative: 'TS_ALLOC'
+  gsn_mapping = (std::queue<roadpoint> **) MALLOC(sizeof(std::queue<roadpoint>*) * g_num_logger, GET_THD_ID);
+                                           ^~~~~~
+                                           TS_ALLOC
+storage/log.cpp:139:6: note: suggested alternative: 'g_no_dl'
+  if (g_no_flush)
+      ^~~~~~~~~~
+      g_no_dl
+storage/log.cpp:143:6: error: 'g_log_recover' was not declared in this scope
+  if (g_log_recover) {
+      ^~~~~~~~~~~~~
+storage/log.cpp:146:7: error: 'g_ramdisk' was not declared in this scope
+    if(g_ramdisk)
+       ^~~~~~~~~
+storage/log.cpp:146:7: note: suggested alternative: 'RamDisk'
+    if(g_ramdisk)
+       ^~~~~~~~~
+       RamDisk
+storage/log.cpp:154:4: error: 'log_manager' was not declared in this scope
+    log_manager->endLV[_logger_id][0] = fdatasize;
+    ^~~~~~~~~~~
+storage/log.cpp:154:4: note: suggested alternative: 'glob_manager'
+    log_manager->endLV[_logger_id][0] = fdatasize;
+    ^~~~~~~~~~~
+    glob_manager
+storage/log.cpp:165:72: error: 'GET_THD_ID' was not declared in this scope
+    _starting_lsns = (uint64_t*) MALLOC(_num_chunks * sizeof(uint64_t), GET_THD_ID);
+                                                                        ^~~~~~~~~~
+storage/plover_log.cpp:67:2: error: '_logger' was not declared in this scope
+  _logger = (LogManager**) MALLOC(sizeof(LogManager*) * g_num_logger, GET_THD_ID); //new LogManager * [g_num_logger];
+  ^~~~~~~
+storage/log.cpp:165:72: note: suggested alternative: 'SIGEV_THREAD_ID'
+    _starting_lsns = (uint64_t*) MALLOC(_num_chunks * sizeof(uint64_t), GET_THD_ID);
+                                                                        ^~~~~~~~~~
+                                                                        SIGEV_THREAD_ID
+storage/log.cpp:165:33: error: 'MALLOC' was not declared in this scope
+    _starting_lsns = (uint64_t*) MALLOC(_num_chunks * sizeof(uint64_t), GET_THD_ID);
+                                 ^~~~~~
+storage/log.cpp:165:33: note: suggested alternative: 'TS_ALLOC'
+    _starting_lsns = (uint64_t*) MALLOC(_num_chunks * sizeof(uint64_t), GET_THD_ID);
+                                 ^~~~~~
+                                 TS_ALLOC
+storage/log.cpp:217:6: error: 'g_ramdisk' was not declared in this scope
+   if(g_ramdisk)
+      ^~~~~~~~~
+storage/plover_log.cpp:84:25: error: 'g_num_disk' was not declared in this scope
+    dir += to_string(i % g_num_disk);
+                         ^~~~~~~~~~
+storage/log.cpp:217:6: note: suggested alternative: 'RamDisk'
+   if(g_ramdisk)
+      ^~~~~~~~~
+      RamDisk
+storage/log.cpp: In member function 'uint64_t LogManager::logTxn(char*, uint32_t, uint64_t, bool)':
+storage/log.cpp:239:41: error: 'g_max_log_entry_size' was not declared in this scope
+   *_persistent_lsn + _log_buffer_size - g_max_log_entry_size * g_thread_cnt / g_num_logger)
+                                         ^~~~~~~~~~~~~~~~~~~~
+storage/plover_log.cpp:84:25: note: suggested alternative: 'g_num_wh'
+    dir += to_string(i % g_num_disk);
+                         ^~~~~~~~~~
+                         g_num_wh
+storage/plover_log.cpp: In member function 'uint64_t PloverLogManager::tryFlush()':
+storage/plover_log.cpp:99:23: error: 'GET_THD_ID' was not declared in this scope
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                       ^~~~~~~~~~
+storage/plover_log.cpp:99:23: note: suggested alternative: 'SIGEV_THREAD_ID'
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                       ^~~~~~~~~~
+                       SIGEV_THREAD_ID
+storage/plover_log.cpp:99:36: error: 'g_num_logger' was not declared in this scope
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                                    ^~~~~~~~~~~~
+storage/log.cpp:239:41: note: suggested alternative: 'get_next_log_entry'
+   *_persistent_lsn + _log_buffer_size - g_max_log_entry_size * g_thread_cnt / g_num_logger)
+                                         ^~~~~~~~~~~~~~~~~~~~
+                                         get_next_log_entry
+storage/log.cpp:239:79: error: 'g_num_logger' was not declared in this scope
+   *_persistent_lsn + _log_buffer_size - g_max_log_entry_size * g_thread_cnt / g_num_logger)
+                                                                               ^~~~~~~~~~~~
+storage/plover_log.cpp:99:36: note: suggested alternative: 'g_num_wh'
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                                    ^~~~~~~~~~~~
+                                    g_num_wh
+storage/plover_log.cpp:100:13: error: '_logger' was not declared in this scope
+  auto ret = _logger[logger_id]->tryFlush();
+             ^~~~~~~
+storage/log.cpp:239:79: note: suggested alternative: 'g_num_wh'
+   *_persistent_lsn + _log_buffer_size - g_max_log_entry_size * g_thread_cnt / g_num_logger)
+                                                                               ^~~~~~~~~~~~
+                                                                               g_num_wh
+storage/log.cpp:247:16: error: 'GET_THD_ID' was not declared in this scope
+   *_filled_lsn[GET_THD_ID] = *_lsn;
+                ^~~~~~~~~~
+storage/plover_log.cpp: In member function 'uint64_t PloverLogManager::serialLogTxn(char*, uint32_t, uint64_t, uint64_t)':
+storage/plover_log.cpp:141:16: error: 'int_num_log' was not declared in this scope
+  INC_INT_STATS(int_num_log, 1);
+                ^~~~~~~~~~~
+storage/log.cpp:247:16: note: suggested alternative: 'SIGEV_THREAD_ID'
+   *_filled_lsn[GET_THD_ID] = *_lsn;
+                ^~~~~~~~~~
+                SIGEV_THREAD_ID
+In file included from /usr/include/c++/7/cassert:44:0,
+                 from storage/row.h:3,
+                 from storage/taurus_log.h:5,
+                 from storage/log.cpp:6:
+storage/log.cpp:266:10: error: 'LOG_ALGORITHM' was not declared in this scope
+   assert(LOG_ALGORITHM == LOG_SERIAL || LOG_ALGORITHM == LOG_PLOVER); // only serial logging puts this code in a critical section.
+          ^
+storage/log.cpp:266:27: error: 'LOG_SERIAL' was not declared in this scope
+   assert(LOG_ALGORITHM == LOG_SERIAL || LOG_ALGORITHM == LOG_PLOVER); // only serial logging puts this code in a critical section.
+                           ^
+storage/log.cpp:266:27: note: suggested alternative: 'LOG_DELETE'
+storage/log.cpp:266:58: error: 'LOG_PLOVER' was not declared in this scope
+   assert(LOG_ALGORITHM == LOG_SERIAL || LOG_ALGORITHM == LOG_PLOVER); // only serial logging puts this code in a critical section.
+                                                          ^
+storage/log.cpp:266:58: note: suggested alternative: 'LOG_DELETE'
+storage/log.cpp:284:16: error: 'time_insideSLT1' was not declared in this scope
+  INC_INT_STATS(time_insideSLT1, get_sys_clock() - starttime);
+                ^~~~~~~~~~~~~~~
+storage/plover_log.cpp:141:16: note: suggested alternative: 'isalnum_l'
+  INC_INT_STATS(int_num_log, 1);
+                ^~~~~~~~~~~
+                isalnum_l
+storage/plover_log.cpp:141:2: error: 'INC_INT_STATS' was not declared in this scope
+  INC_INT_STATS(int_num_log, 1);
+  ^~~~~~~~~~~~~
+storage/log.cpp:284:2: error: 'INC_INT_STATS' was not declared in this scope
+  INC_INT_STATS(time_insideSLT1, get_sys_clock() - starttime);
+  ^~~~~~~~~~~~~
+storage/log.cpp:284:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS(time_insideSLT1, get_sys_clock() - starttime);
+  ^~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/log.cpp:287:16: error: 'class Manager' has no member named 'update_epoch_lsn_mapping'; did you mean 'update_epoch'?
+  glob_manager->update_epoch_lsn_mapping(epoch, lsn);
+                ^~~~~~~~~~~~~~~~~~~~~~~~
+                update_epoch
+storage/log.cpp:296:17: error: 'GET_THD_ID' was not declared in this scope
+   *(_filled_lsn[GET_THD_ID]) = lsn + size_aligned;
+                 ^~~~~~~~~~
+storage/plover_log.cpp:141:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS(int_num_log, 1);
+  ^~~~~~~~~~~~~
+  INC_TMP_STATS
+In file included from /usr/include/c++/7/cassert:44:0,
+                 from storage/row.h:3,
+                 from storage/plover_log.h:6,
+                 from storage/plover_log.cpp:2:
+storage/plover_log.cpp:144:22: error: 'g_max_log_entry_size' was not declared in this scope
+  assert(total_size < g_max_log_entry_size);
+                      ^
+storage/log.cpp:296:17: note: suggested alternative: 'SIGEV_THREAD_ID'
+   *(_filled_lsn[GET_THD_ID]) = lsn + size_aligned;
+                 ^~~~~~~~~~
+                 SIGEV_THREAD_ID
+storage/log.cpp:298:16: error: 'time_insideSLT2' was not declared in this scope
+  INC_INT_STATS(time_insideSLT2, get_sys_clock() - starttime);
+                ^~~~~~~~~~~~~~~
+storage/log.cpp: In member function 'uint64_t LogManager::tryFlush()':
+storage/log.cpp:307:6: error: 'g_no_flush' was not declared in this scope
+  if (g_no_flush) {
+      ^~~~~~~~~~
+storage/log.cpp:307:6: note: suggested alternative: 'g_no_dl'
+  if (g_no_flush) {
+      ^~~~~~~~~~
+      g_no_dl
+storage/log.cpp:357:37: error: 'g_flush_blocksize' was not declared in this scope
+      ready_lsn - *_persistent_lsn < g_flush_blocksize)
+                                     ^~~~~~~~~~~~~~~~~
+storage/plover_log.cpp:144:22: note: suggested alternative: 'entry_size'
+storage/plover_log.cpp:148:19: error: 'int_aux_bytes' was not declared in this scope
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+                   ^~~~~~~~~~~~~
+storage/plover_log.cpp:148:19: note: suggested alternative: 'intmax_t'
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+                   ^~~~~~~~~~~~~
+                   intmax_t
+storage/plover_log.cpp:148:34: error: 'g_num_logger' was not declared in this scope
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+                                  ^~~~~~~~~~~~
+storage/log.cpp:357:37: note: suggested alternative: 'fflush_unlocked'
+      ready_lsn - *_persistent_lsn < g_flush_blocksize)
+                                     ^~~~~~~~~~~~~~~~~
+                                     fflush_unlocked
+storage/log.cpp:361:36: error: 'g_flush_blocksize' was not declared in this scope
+  if(ready_lsn - *_persistent_lsn < g_flush_blocksize)
+                                    ^~~~~~~~~~~~~~~~~
+storage/log.cpp:361:36: note: suggested alternative: 'fflush_unlocked'
+  if(ready_lsn - *_persistent_lsn < g_flush_blocksize)
+                                    ^~~~~~~~~~~~~~~~~
+                                    fflush_unlocked
+storage/log.cpp:363:17: error: 'int_flush_time_interval' was not declared in this scope
+   INC_INT_STATS(int_flush_time_interval, 1); // caused by time larger than _flush_interval
+                 ^~~~~~~~~~~~~~~~~~~~~~~
+storage/log.cpp:363:17: note: suggested alternative: '_flush_interval'
+   INC_INT_STATS(int_flush_time_interval, 1); // caused by time larger than _flush_interval
+                 ^~~~~~~~~~~~~~~~~~~~~~~
+                 _flush_interval
+storage/log.cpp:363:3: error: 'INC_INT_STATS' was not declared in this scope
+   INC_INT_STATS(int_flush_time_interval, 1); // caused by time larger than _flush_interval
+   ^~~~~~~~~~~~~
+storage/log.cpp:363:3: note: suggested alternative: 'INC_TMP_STATS'
+   INC_INT_STATS(int_flush_time_interval, 1); // caused by time larger than _flush_interval
+   ^~~~~~~~~~~~~
+   INC_TMP_STATS
+storage/log.cpp:367:17: error: 'int_flush_half_full' was not declared in this scope
+   INC_INT_STATS(int_flush_half_full, 1); // caused by half full buffer
+                 ^~~~~~~~~~~~~~~~~~~
+storage/plover_log.cpp:148:34: note: suggested alternative: 'g_num_wh'
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+                                  ^~~~~~~~~~~~
+                                  g_num_wh
+storage/plover_log.cpp:148:2: error: 'INC_INT_STATS_V0' was not declared in this scope
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+  ^~~~~~~~~~~~~~~~
+storage/log.cpp:367:3: error: 'INC_INT_STATS' was not declared in this scope
+   INC_INT_STATS(int_flush_half_full, 1); // caused by half full buffer
+   ^~~~~~~~~~~~~
+storage/plover_log.cpp:148:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+  ^~~~~~~~~~~~~~~~
+  INC_TMP_STATS
+In file included from ./system/manager.h:3:0,
+                 from storage/plover_log.cpp:1:
+storage/plover_log.cpp:149:12: error: 'GET_THD_ID' was not declared in this scope
+  INC_STATS(GET_THD_ID, log_data, total_size);
+            ^
+./system/helper.h:87:16: note: in definition of macro 'INC_STATS'
+   stats._stats[tid]->name += value;
+                ^~~
+storage/log.cpp:367:3: note: suggested alternative: 'INC_TMP_STATS'
+   INC_INT_STATS(int_flush_half_full, 1); // caused by half full buffer
+   ^~~~~~~~~~~~~
+   INC_TMP_STATS
+storage/log.cpp:377:27: error: 'g_flush_blocksize' was not declared in this scope
+  if(end_lsn - start_lsn > g_flush_blocksize)
+                           ^~~~~~~~~~~~~~~~~
+storage/plover_log.cpp:149:12: note: suggested alternative: 'SIGEV_THREAD_ID'
+  INC_STATS(GET_THD_ID, log_data, total_size);
+            ^
+./system/helper.h:87:16: note: in definition of macro 'INC_STATS'
+   stats._stats[tid]->name += value;
+                ^~~
+storage/plover_log.cpp:175:16: error: 'time_STLother' was not declared in this scope
+  INC_INT_STATS(time_STLother, get_sys_clock() - starttime);
+                ^~~~~~~~~~~~~
+storage/log.cpp:377:27: note: suggested alternative: 'fflush_unlocked'
+  if(end_lsn - start_lsn > g_flush_blocksize)
+                           ^~~~~~~~~~~~~~~~~
+                           fflush_unlocked
+storage/log.cpp:390:16: error: 'class Manager' has no member named 'update_persistent_epoch'; did you mean 'update_epoch'?
+  glob_manager->update_persistent_epoch(_logger_id, end_lsn);
+                ^~~~~~~~~~~~~~~~~~~~~~~
+                update_epoch
+storage/log.cpp: In member function 'void LogManager::flush(uint64_t, uint64_t)':
+storage/log.cpp:434:16: error: 'int_debug2' was not declared in this scope
+  INC_INT_STATS(int_debug2, bytes);
+                ^~~~~~~~~~
+storage/log.cpp:434:2: error: 'INC_INT_STATS' was not declared in this scope
+  INC_INT_STATS(int_debug2, bytes);
+  ^~~~~~~~~~~~~
+storage/log.cpp:434:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS(int_debug2, bytes);
+  ^~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/log.cpp:435:16: error: 'int_debug3' was not declared in this scope
+  INC_INT_STATS(int_debug3, 1);
+                ^~~~~~~~~~
+storage/plover_log.cpp:182:12: error: '_logger' was not declared in this scope
+   newlsn = _logger[logger_id]->logTxn(log_entry, total_size, 0, false);
+            ^~~~~~~
+storage/log.cpp:437:19: error: 'time_io' was not declared in this scope
+  INC_INT_STATS_V0(time_io, get_sys_clock() - starttime); // actual time in flush.
+                   ^~~~~~~
+storage/log.cpp:437:19: note: suggested alternative: 'time_t'
+  INC_INT_STATS_V0(time_io, get_sys_clock() - starttime); // actual time in flush.
+                   ^~~~~~~
+                   time_t
+storage/log.cpp:437:2: error: 'INC_INT_STATS_V0' was not declared in this scope
+  INC_INT_STATS_V0(time_io, get_sys_clock() - starttime); // actual time in flush.
+  ^~~~~~~~~~~~~~~~
+storage/plover_log.cpp:186:17: error: 'int_serialLogFail' was not declared in this scope
+   INC_INT_STATS(int_serialLogFail, 1);
+                 ^~~~~~~~~~~~~~~~~
+In file included from storage/parallel_log.cpp:2:0:
+storage/parallel_log.h:90:2: error: 'LogManager' does not name a type; did you mean 'Manager'?
+  LogManager ** _logger;
+  ^~~~~~~~~~
+  Manager
+storage/parallel_log.h: In member function 'uint32_t ParallelLogManager::get_logger_id(uint64_t)':
+storage/parallel_log.h:88:63: error: 'g_num_logger' was not declared in this scope
+     uint32_t get_logger_id(uint64_t thd_id) { return thd_id % g_num_logger; }
+                                                               ^~~~~~~~~~~~
+storage/log.cpp:437:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS_V0(time_io, get_sys_clock() - starttime); // actual time in flush.
+  ^~~~~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/log.cpp: In member function 'uint64_t LogManager::tryReadLog()':
+storage/log.cpp:555:20: error: 'g_read_blocksize' was not declared in this scope
+  uint64_t budget = g_read_blocksize; //(uint64_t)(_log_buffer_size * g_recover_buffer_perc);
+                    ^~~~~~~~~~~~~~~~
+storage/parallel_log.h:88:63: note: suggested alternative: 'g_num_wh'
+     uint32_t get_logger_id(uint64_t thd_id) { return thd_id % g_num_logger; }
+                                                               ^~~~~~~~~~~~
+                                                               g_num_wh
+storage/plover_log.cpp:186:17: note: suggested alternative: 'serialLogTxn'
+   INC_INT_STATS(int_serialLogFail, 1);
+                 ^~~~~~~~~~~~~~~~~
+                 serialLogTxn
+storage/plover_log.cpp: In member function 'uint64_t PloverLogManager::get_persistent_lsn()':
+storage/plover_log.cpp:221:9: error: '_logger' was not declared in this scope
+  return _logger[0]->get_persistent_lsn();
+         ^~~~~~~
+storage/log.cpp:555:20: note: suggested alternative: 'g_read_perc'
+  uint64_t budget = g_read_blocksize; //(uint64_t)(_log_buffer_size * g_recover_buffer_perc);
+                    ^~~~~~~~~~~~~~~~
+                    g_read_perc
+storage/log.cpp:599:24: error: 'g_max_log_entry_size' was not declared in this scope
+   if(start_lsn_moded < g_max_log_entry_size)
+                        ^~~~~~~~~~~~~~~~~~~~
+storage/log.cpp:599:24: note: suggested alternative: 'get_next_log_entry'
+   if(start_lsn_moded < g_max_log_entry_size)
+                        ^~~~~~~~~~~~~~~~~~~~
+                        get_next_log_entry
+storage/log.cpp:609:62: error: 'g_max_log_entry_size' was not declared in this scope
+    memcpy(_buffer+_log_buffer_size, _buffer, end_lsn_moded < g_max_log_entry_size ? end_lsn_moded : g_max_log_entry_size);
+                                                              ^~~~~~~~~~~~~~~~~~~~
+storage/log.cpp:609:62: note: suggested alternative: 'get_next_log_entry'
+    memcpy(_buffer+_log_buffer_size, _buffer, end_lsn_moded < g_max_log_entry_size ? end_lsn_moded : g_max_log_entry_size);
+                                                              ^~~~~~~~~~~~~~~~~~~~
+                                                              get_next_log_entry
+storage/log.cpp:618:24: error: 'g_max_log_entry_size' was not declared in this scope
+   if(start_lsn_moded < g_max_log_entry_size)
+                        ^~~~~~~~~~~~~~~~~~~~
+storage/log.cpp:618:24: note: suggested alternative: 'get_next_log_entry'
+   if(start_lsn_moded < g_max_log_entry_size)
+                        ^~~~~~~~~~~~~~~~~~~~
+                        get_next_log_entry
+storage/log.cpp:640:16: error: 'int_debug3' was not declared in this scope
+  INC_INT_STATS(int_debug3, 1);
+                ^~~~~~~~~~
+storage/log.cpp:640:2: error: 'INC_INT_STATS' was not declared in this scope
+  INC_INT_STATS(int_debug3, 1);
+  ^~~~~~~~~~~~~
+storage/log.cpp:640:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS(int_debug3, 1);
+  ^~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/log.cpp:641:16: error: 'int_debug2' was not declared in this scope
+  INC_INT_STATS(int_debug2, bytes);
+                ^~~~~~~~~~
+storage/log.cpp:642:19: error: 'time_io' was not declared in this scope
+  INC_INT_STATS_V0(time_io, get_sys_clock() - starttime);
+                   ^~~~~~~
+storage/log.cpp:642:19: note: suggested alternative: 'time_t'
+  INC_INT_STATS_V0(time_io, get_sys_clock() - starttime);
+                   ^~~~~~~
+                   time_t
+storage/log.cpp:642:2: error: 'INC_INT_STATS_V0' was not declared in this scope
+  INC_INT_STATS_V0(time_io, get_sys_clock() - starttime);
+  ^~~~~~~~~~~~~~~~
+storage/log.cpp:642:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS_V0(time_io, get_sys_clock() - starttime);
+  ^~~~~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/log.cpp:644:19: error: 'int_debug1' was not declared in this scope
+     INC_INT_STATS(int_debug1, 1); // how many time we initiate the AIO.
+                   ^~~~~~~~~~
+Makefile:28: recipe for target 'storage/plover_log.o' failed
+make: *** [storage/plover_log.o] Error 1
+storage/log.cpp:645:16: error: 'time_debug10' was not declared in this scope
+  INC_INT_STATS(time_debug10, get_sys_clock() - starttime); // actual time in read.
+                ^~~~~~~~~~~~
+storage/taurus_log.cpp: In constructor 'TaurusLogManager::TaurusLogManager()':
+storage/taurus_log.cpp:30:39: error: 'MALLOC' was not declared in this scope
+   num_txns_recovered[i] = (uint64_t *)MALLOC(sizeof(uint64_t), i);
+                                       ^~~~~~
+storage/log.cpp:645:16: note: suggested alternative: 'timespec_get'
+  INC_INT_STATS(time_debug10, get_sys_clock() - starttime); // actual time in read.
+                ^~~~~~~~~~~~
+                timespec_get
+storage/log.cpp: In member function 'uint64_t LogManager::get_next_log_entry_non_atom(char*&)':
+storage/log.cpp:670:7: error: 'UNLIKELY' was not declared in this scope
+   if (UNLIKELY(*_next_lsn + sizeof(uint32_t) * 2 >= *_disk_lsn - dead_tail)) {
+       ^~~~~~~~
+storage/taurus_log.cpp:30:39: note: suggested alternative: 'TS_ALLOC'
+   num_txns_recovered[i] = (uint64_t *)MALLOC(sizeof(uint64_t), i);
+                                       ^~~~~~
+                                       TS_ALLOC
+storage/taurus_log.cpp:42:39: error: 'g_num_logger' was not declared in this scope
+  uint64_t num_worker = g_thread_cnt / g_num_logger;
+                                       ^~~~~~~~~~~~
+storage/log.cpp:670:7: note: suggested alternative: 'ENOKEY'
+   if (UNLIKELY(*_next_lsn + sizeof(uint32_t) * 2 >= *_disk_lsn - dead_tail)) {
+       ^~~~~~~~
+       ENOKEY
+storage/log.cpp:675:18: error: 'time_debug11' was not declared in this scope
+    INC_INT_STATS(time_debug11, get_sys_clock() - t1);
+                  ^~~~~~~~~~~~
+storage/log.cpp:675:18: note: suggested alternative: 'timespec_get'
+    INC_INT_STATS(time_debug11, get_sys_clock() - t1);
+                  ^~~~~~~~~~~~
+                  timespec_get
+storage/log.cpp:675:4: error: 'INC_INT_STATS' was not declared in this scope
+    INC_INT_STATS(time_debug11, get_sys_clock() - t1);
+    ^~~~~~~~~~~~~
+storage/taurus_log.cpp:42:39: note: suggested alternative: 'num_worker'
+  uint64_t num_worker = g_thread_cnt / g_num_logger;
+                                       ^~~~~~~~~~~~
+                                       num_worker
+storage/taurus_log.cpp:43:21: error: 'CONTENTION_THRESHOLD' was not declared in this scope
+  if (g_zipf_theta > CONTENTION_THRESHOLD && !PER_WORKER_RECOVERY)
+                     ^~~~~~~~~~~~~~~~~~~~
+storage/log.cpp:675:4: note: suggested alternative: 'INC_TMP_STATS'
+    INC_INT_STATS(time_debug11, get_sys_clock() - t1);
+    ^~~~~~~~~~~~~
+    INC_TMP_STATS
+storage/log.cpp:695:7: error: 'UNLIKELY' was not declared in this scope
+   if (UNLIKELY(*_next_lsn + size >= *_disk_lsn - dead_tail)) {
+       ^~~~~~~~
+storage/log.cpp:695:7: note: suggested alternative: 'ENOKEY'
+   if (UNLIKELY(*_next_lsn + size >= *_disk_lsn - dead_tail)) {
+       ^~~~~~~~
+       ENOKEY
+storage/log.cpp:700:18: error: 'time_debug12' was not declared in this scope
+    INC_INT_STATS(time_debug12, get_sys_clock() - t1);
+                  ^~~~~~~~~~~~
+storage/log.cpp:700:18: note: suggested alternative: 'timespec_get'
+    INC_INT_STATS(time_debug12, get_sys_clock() - t1);
+                  ^~~~~~~~~~~~
+                  timespec_get
+storage/log.cpp:700:4: error: 'INC_INT_STATS' was not declared in this scope
+    INC_INT_STATS(time_debug12, get_sys_clock() - t1);
+    ^~~~~~~~~~~~~
+storage/log.cpp:700:4: note: suggested alternative: 'INC_TMP_STATS'
+    INC_INT_STATS(time_debug12, get_sys_clock() - t1);
+    ^~~~~~~~~~~~~
+    INC_TMP_STATS
+storage/log.cpp:705:16: error: 'time_debug_get_next' was not declared in this scope
+  INC_INT_STATS(time_debug_get_next, tt2 - t1);
+                ^~~~~~~~~~~~~~~~~~~
+storage/log.cpp:705:2: error: 'INC_INT_STATS' was not declared in this scope
+  INC_INT_STATS(time_debug_get_next, tt2 - t1);
+  ^~~~~~~~~~~~~
+storage/log.cpp:705:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS(time_debug_get_next, tt2 - t1);
+  ^~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/taurus_log.cpp:43:46: error: 'PER_WORKER_RECOVERY' was not declared in this scope
+  if (g_zipf_theta > CONTENTION_THRESHOLD && !PER_WORKER_RECOVERY)
+                                              ^~~~~~~~~~~~~~~~~~~
+storage/log.cpp:713:16: error: 'int_debug_get_next' was not declared in this scope
+  INC_INT_STATS(int_debug_get_next, 1);
+                ^~~~~~~~~~~~~~~~~~
+storage/log.cpp:714:16: error: 'time_recover5' was not declared in this scope
+  INC_INT_STATS(time_recover5, get_sys_clock() - t1);
+                ^~~~~~~~~~~~~
+storage/log.cpp:714:16: note: suggested alternative: 'timespec_get'
+  INC_INT_STATS(time_recover5, get_sys_clock() - t1);
+                ^~~~~~~~~~~~~
+                timespec_get
+storage/log.cpp: In member function 'uint64_t LogManager::get_next_log_entry(char*&, uint32_t&)':
+storage/log.cpp:741:23: error: 'GET_THD_ID' was not declared in this scope
+   uint64_t workerId = GET_THD_ID / g_num_logger;
+                       ^~~~~~~~~~
+storage/log.cpp:741:23: note: suggested alternative: 'SIGEV_THREAD_ID'
+   uint64_t workerId = GET_THD_ID / g_num_logger;
+                       ^~~~~~~~~~
+                       SIGEV_THREAD_ID
+storage/log.cpp:741:36: error: 'g_num_logger' was not declared in this scope
+   uint64_t workerId = GET_THD_ID / g_num_logger;
+                                    ^~~~~~~~~~~~
+storage/log.cpp:741:36: note: suggested alternative: 'g_num_wh'
+   uint64_t workerId = GET_THD_ID / g_num_logger;
+                                    ^~~~~~~~~~~~
+                                    g_num_wh
+storage/log.cpp:742:3: error: 'reserveLSN' was not declared in this scope
+   reserveLSN[workerId][0] = 0;
+   ^~~~~~~~~~
+storage/taurus_log.cpp:45:2: error: 'recoverLVSPSC' was not declared in this scope
+  recoverLVSPSC = (recoverLV_t **)MALLOC(sizeof(recoverLV_t *) * g_num_logger, 0);
+  ^~~~~~~~~~~~~
+storage/log.cpp:742:3: note: suggested alternative: 'rasterizedLSN'
+   reserveLSN[workerId][0] = 0;
+   ^~~~~~~~~~
+   rasterizedLSN
+storage/log.cpp:746:12: error: redeclaration of 'uint64_t workerId'
+   uint64_t workerId = GET_THD_ID / g_num_logger;
+            ^~~~~~~~
+storage/log.cpp:741:12: note: 'uint64_t workerId' previously declared here
+   uint64_t workerId = GET_THD_ID / g_num_logger;
+            ^~~~~~~~
+storage/log.cpp:758:7: error: 'UNLIKELY' was not declared in this scope
+   if (UNLIKELY(next_lsn + sizeof(uint32_t) * 2 >= *_disk_lsn - dead_tail)) {
+       ^~~~~~~~
+storage/log.cpp:758:7: note: suggested alternative: 'ENOKEY'
+   if (UNLIKELY(next_lsn + sizeof(uint32_t) * 2 >= *_disk_lsn - dead_tail)) {
+       ^~~~~~~~
+       ENOKEY
+storage/log.cpp:761:18: error: 'time_debug11' was not declared in this scope
+    INC_INT_STATS(time_debug11, get_sys_clock() - t1);
+                  ^~~~~~~~~~~~
+storage/log.cpp:761:18: note: suggested alternative: 'timespec_get'
+    INC_INT_STATS(time_debug11, get_sys_clock() - t1);
+                  ^~~~~~~~~~~~
+                  timespec_get
+storage/log.cpp:761:4: error: 'INC_INT_STATS' was not declared in this scope
+    INC_INT_STATS(time_debug11, get_sys_clock() - t1);
+    ^~~~~~~~~~~~~
+storage/log.cpp:761:4: note: suggested alternative: 'INC_TMP_STATS'
+    INC_INT_STATS(time_debug11, get_sys_clock() - t1);
+    ^~~~~~~~~~~~~
+    INC_TMP_STATS
+storage/log.cpp:776:7: error: 'UNLIKELY' was not declared in this scope
+   if (UNLIKELY(next_lsn + size_aligned >= *_disk_lsn - dead_tail)) {
+       ^~~~~~~~
+storage/taurus_log.cpp:45:19: error: 'recoverLV_t' was not declared in this scope
+  recoverLVSPSC = (recoverLV_t **)MALLOC(sizeof(recoverLV_t *) * g_num_logger, 0);
+                   ^~~~~~~~~~~
+storage/log.cpp:776:7: note: suggested alternative: 'ENOKEY'
+   if (UNLIKELY(next_lsn + size_aligned >= *_disk_lsn - dead_tail)) {
+       ^~~~~~~~
+       ENOKEY
+storage/log.cpp:778:18: error: 'time_debug12' was not declared in this scope
+    INC_INT_STATS(time_debug12, get_sys_clock() - t1);
+                  ^~~~~~~~~~~~
+storage/log.cpp:778:18: note: suggested alternative: 'timespec_get'
+    INC_INT_STATS(time_debug12, get_sys_clock() - t1);
+                  ^~~~~~~~~~~~
+                  timespec_get
+storage/log.cpp:778:4: error: 'INC_INT_STATS' was not declared in this scope
+    INC_INT_STATS(time_debug12, get_sys_clock() - t1);
+    ^~~~~~~~~~~~~
+storage/taurus_log.cpp:45:33: error: expected primary-expression before ')' token
+  recoverLVSPSC = (recoverLV_t **)MALLOC(sizeof(recoverLV_t *) * g_num_logger, 0);
+                                 ^
+storage/taurus_log.cpp:46:2: error: 'maxLVSPSC' was not declared in this scope
+  maxLVSPSC = (recoverLV_t **)MALLOC(sizeof(recoverLV_t *) * g_num_logger, 0);
+  ^~~~~~~~~
+storage/log.cpp:778:4: note: suggested alternative: 'INC_TMP_STATS'
+    INC_INT_STATS(time_debug12, get_sys_clock() - t1);
+    ^~~~~~~~~~~~~
+    INC_TMP_STATS
+storage/log.cpp:794:16: error: 'time_debug5' was not declared in this scope
+  INC_INT_STATS(time_debug5, get_sys_clock() - t1);
+                ^~~~~~~~~~~
+In file included from storage/parallel_log.cpp:4:0:
+./system/log_recover_table.h: At global scope:
+./system/log_recover_table.h:52:18: error: 'MAX_LOG_ENTRY_SIZE' was not declared in this scope
+   char log_entry[MAX_LOG_ENTRY_SIZE];
+                  ^~~~~~~~~~~~~~~~~~
+storage/taurus_log.cpp:46:29: error: expected primary-expression before ')' token
+  maxLVSPSC = (recoverLV_t **)MALLOC(sizeof(recoverLV_t *) * g_num_logger, 0);
+                             ^
+storage/taurus_log.cpp:47:2: error: 'recoverLVSPSC_min' was not declared in this scope
+  recoverLVSPSC_min = (recoverLV_t *)MALLOC(sizeof(recoverLV_t) * g_num_logger, 0);
+  ^~~~~~~~~~~~~~~~~
+storage/log.cpp:794:16: note: suggested alternative: 'timer_delete'
+  INC_INT_STATS(time_debug5, get_sys_clock() - t1);
+                ^~~~~~~~~~~
+                timer_delete
+storage/log.cpp:794:2: error: 'INC_INT_STATS' was not declared in this scope
+  INC_INT_STATS(time_debug5, get_sys_clock() - t1);
+  ^~~~~~~~~~~~~
+storage/log.cpp:794:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS(time_debug5, get_sys_clock() - t1);
+  ^~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/log.cpp:795:16: error: 'int_debug6' was not declared in this scope
+  INC_INT_STATS(int_debug6, 1);
+                ^~~~~~~~~~
+storage/log.cpp:803:16: error: 'int_debug_get_next' was not declared in this scope
+  INC_INT_STATS(int_debug_get_next, 1);
+                ^~~~~~~~~~~~~~~~~~
+./system/log_recover_table.h:52:18: note: suggested alternative: 'MAX_TUPLE_SIZE'
+   char log_entry[MAX_LOG_ENTRY_SIZE];
+                  ^~~~~~~~~~~~~~~~~~
+                  MAX_TUPLE_SIZE
+storage/parallel_log.cpp: In constructor 'PredecessorInfo::PredecessorInfo()':
+storage/parallel_log.cpp:32:71: error: 'GET_THD_ID' was not declared in this scope
+  _preds_raw = (uint64_t *) MALLOC(sizeof(uint64_t) * MAX_ROW_PER_TXN, GET_THD_ID);
+                                                                       ^~~~~~~~~~
+storage/log.cpp:804:16: error: 'time_recover5' was not declared in this scope
+  INC_INT_STATS(time_recover5, get_sys_clock() - t1);
+                ^~~~~~~~~~~~~
+storage/parallel_log.cpp:32:71: note: suggested alternative: 'SIGEV_THREAD_ID'
+  _preds_raw = (uint64_t *) MALLOC(sizeof(uint64_t) * MAX_ROW_PER_TXN, GET_THD_ID);
+                                                                       ^~~~~~~~~~
+                                                                       SIGEV_THREAD_ID
+storage/parallel_log.cpp:32:28: error: 'MALLOC' was not declared in this scope
+  _preds_raw = (uint64_t *) MALLOC(sizeof(uint64_t) * MAX_ROW_PER_TXN, GET_THD_ID);
+                            ^~~~~~
+storage/parallel_log.cpp:32:28: note: suggested alternative: 'TS_ALLOC'
+  _preds_raw = (uint64_t *) MALLOC(sizeof(uint64_t) * MAX_ROW_PER_TXN, GET_THD_ID);
+                            ^~~~~~
+                            TS_ALLOC
+storage/log.cpp:804:16: note: suggested alternative: 'timespec_get'
+  INC_INT_STATS(time_recover5, get_sys_clock() - t1);
+                ^~~~~~~~~~~~~
+                timespec_get
+storage/taurus_log.cpp:47:36: error: expected primary-expression before ')' token
+  recoverLVSPSC_min = (recoverLV_t *)MALLOC(sizeof(recoverLV_t) * g_num_logger, 0);
+                                    ^
+storage/taurus_log.cpp:50:36: error: expected primary-expression before ')' token
+   recoverLVSPSC[i] = (recoverLV_t *)MALLOC(sizeof(recoverLV_t) * num_worker, i);
+                                    ^
+storage/taurus_log.cpp:51:32: error: expected primary-expression before ')' token
+   maxLVSPSC[i] = (recoverLV_t *)MALLOC(sizeof(recoverLV_t) * num_worker, i);
+                                ^
+storage/taurus_log.cpp:63:23: error: 'MALLOC' was not declared in this scope
+  endLV = (uint64_t **)MALLOC(sizeof(uint64_t *) * g_num_logger, 0);
+                       ^~~~~~
+storage/log.cpp: In member function 'uint32_t LogManager::get_next_log_chunk(char*&, uint64_t&, uint64_t&)':
+storage/log.cpp:926:5: error: 'g_ramdisk' was not declared in this scope
+  if(g_ramdisk)
+     ^~~~~~~~~
+storage/parallel_log.cpp: In constructor 'ParallelLogManager::ParallelLogManager()':
+storage/parallel_log.cpp:111:65: error: 'GET_THD_ID' was not declared in this scope
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                                                 ^~~~~~~~~~
+storage/taurus_log.cpp:63:23: note: suggested alternative: 'TS_ALLOC'
+  endLV = (uint64_t **)MALLOC(sizeof(uint64_t *) * g_num_logger, 0);
+                       ^~~~~~
+                       TS_ALLOC
+storage/log.cpp:926:5: note: suggested alternative: 'RamDisk'
+  if(g_ramdisk)
+     ^~~~~~~~~
+     RamDisk
+storage/taurus_log.cpp: In destructor 'TaurusLogManager::~TaurusLogManager()':
+storage/taurus_log.cpp:73:27: error: 'g_num_logger' was not declared in this scope
+  for (uint32_t i = 0; i < g_num_logger; i++)
+                           ^~~~~~~~~~~~
+storage/log.cpp:944:19: error: 'time_recover1' was not declared in this scope
+     INC_INT_STATS(time_recover1, phase1 - start);
+                   ^~~~~~~~~~~~~
+storage/parallel_log.cpp:111:65: note: suggested alternative: 'SIGEV_THREAD_ID'
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                                                 ^~~~~~~~~~
+                                                                 SIGEV_THREAD_ID
+storage/parallel_log.cpp:111:40: error: 'MALLOC' was not declared in this scope
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                        ^~~~~~
+storage/parallel_log.cpp:111:40: note: suggested alternative: 'TS_ALLOC'
+   num_txns_recovered[i] = (uint64_t *) MALLOC(sizeof(uint64_t), GET_THD_ID);
+                                        ^~~~~~
+                                        TS_ALLOC
+storage/log.cpp:944:19: note: suggested alternative: 'timespec_get'
+     INC_INT_STATS(time_recover1, phase1 - start);
+                   ^~~~~~~~~~~~~
+                   timespec_get
+storage/parallel_log.cpp:116:33: error: 'g_num_logger' was not declared in this scope
+  _curr_fence_ts = new uint64_t [g_num_logger];
+                                 ^~~~~~~~~~~~
+storage/log.cpp:944:5: error: 'INC_INT_STATS' was not declared in this scope
+     INC_INT_STATS(time_recover1, phase1 - start);
+     ^~~~~~~~~~~~~
+storage/log.cpp:944:5: note: suggested alternative: 'INC_TMP_STATS'
+     INC_INT_STATS(time_recover1, phase1 - start);
+     ^~~~~~~~~~~~~
+     INC_TMP_STATS
+storage/log.cpp:956:19: error: 'time_recover2' was not declared in this scope
+     INC_INT_STATS(time_recover2, get_sys_clock() - phase1);
+                   ^~~~~~~~~~~~~
+storage/parallel_log.cpp:116:33: note: suggested alternative: 'g_num_wh'
+  _curr_fence_ts = new uint64_t [g_num_logger];
+                                 ^~~~~~~~~~~~
+                                 g_num_wh
+storage/parallel_log.cpp: In destructor 'ParallelLogManager::~ParallelLogManager()':
+storage/parallel_log.cpp:121:26: error: 'g_num_logger' was not declared in this scope
+  for(uint32_t i = 0; i < g_num_logger; i++)
+                          ^~~~~~~~~~~~
+storage/taurus_log.cpp:73:27: note: suggested alternative: 'g_num_wh'
+  for (uint32_t i = 0; i < g_num_logger; i++)
+                           ^~~~~~~~~~~~
+                           g_num_wh
+storage/taurus_log.cpp:76:3: error: '_logger' was not declared in this scope
+   _logger[i]->~LogManager();
+   ^~~~~~~
+storage/log.cpp:956:19: note: suggested alternative: 'timespec_get'
+     INC_INT_STATS(time_recover2, get_sys_clock() - phase1);
+                   ^~~~~~~~~~~~~
+                   timespec_get
+storage/log.cpp: In member function 'void LogManager::set_gc_lsn(uint64_t)':
+storage/log.cpp:974:11: error: 'GET_THD_ID' was not declared in this scope
+  *_gc_lsn[GET_THD_ID] = lsn;
+           ^~~~~~~~~~
+storage/taurus_log.cpp:77:3: error: 'FREE' was not declared in this scope
+   FREE(_logger[i], sizeof(LogManager));
+   ^~~~
+storage/log.cpp:974:11: note: suggested alternative: 'SIGEV_THREAD_ID'
+  *_gc_lsn[GET_THD_ID] = lsn;
+           ^~~~~~~~~~
+           SIGEV_THREAD_ID
+storage/parallel_log.cpp:121:26: note: suggested alternative: 'g_num_wh'
+  for(uint32_t i = 0; i < g_num_logger; i++)
+                          ^~~~~~~~~~~~
+                          g_num_wh
+storage/parallel_log.cpp:122:10: error: '_logger' was not declared in this scope
+   delete _logger[i];
+          ^~~~~~~
+storage/taurus_log.cpp:77:3: note: suggested alternative: 'FILE'
+   FREE(_logger[i], sizeof(LogManager));
+   ^~~~
+   FILE
+storage/taurus_log.cpp:81:7: error: '_logger' was not declared in this scope
+  FREE(_logger, sizeof(LogManager *) * g_num_logger);
+       ^~~~~~~
+storage/parallel_log.cpp:123:9: error: '_logger' was not declared in this scope
+  delete _logger;
+         ^~~~~~~
+storage/taurus_log.cpp:81:39: error: 'g_num_logger' was not declared in this scope
+  FREE(_logger, sizeof(LogManager *) * g_num_logger);
+                                       ^~~~~~~~~~~~
+storage/parallel_log.cpp: In member function 'void ParallelLogManager::init()':
+storage/parallel_log.cpp:128:2: error: '_logger' was not declared in this scope
+  _logger = new LogManager * [g_num_logger];
+  ^~~~~~~
+storage/parallel_log.cpp:128:30: error: 'g_num_logger' was not declared in this scope
+  _logger = new LogManager * [g_num_logger];
+                              ^~~~~~~~~~~~
+storage/taurus_log.cpp:81:39: note: suggested alternative: 'g_num_wh'
+  FREE(_logger, sizeof(LogManager *) * g_num_logger);
+                                       ^~~~~~~~~~~~
+                                       g_num_wh
+storage/taurus_log.cpp:81:2: error: 'FREE' was not declared in this scope
+  FREE(_logger, sizeof(LogManager *) * g_num_logger);
+  ^~~~
+storage/parallel_log.cpp:128:30: note: suggested alternative: 'g_num_wh'
+  _logger = new LogManager * [g_num_logger];
+                              ^~~~~~~~~~~~
+                              g_num_wh
+storage/taurus_log.cpp:81:2: note: suggested alternative: 'FILE'
+  FREE(_logger, sizeof(LogManager *) * g_num_logger);
+  ^~~~
+  FILE
+storage/taurus_log.cpp: In member function 'void TaurusLogManager::init()':
+storage/taurus_log.cpp:86:2: error: '_logger' was not declared in this scope
+  _logger = (LogManager **)MALLOC(sizeof(LogManager *) * g_num_logger, GET_THD_ID); //new LogManager * [g_num_logger];
+  ^~~~~~~
+storage/parallel_log.cpp: In member function 'uint64_t ParallelLogManager::get_persistent_lsn(uint32_t)':
+storage/parallel_log.cpp:158:9: error: '_logger' was not declared in this scope
+  return _logger[ logger_id ]->get_persistent_lsn();
+         ^~~~~~~
+storage/taurus_log.cpp:86:57: error: 'g_num_logger' was not declared in this scope
+  _logger = (LogManager **)MALLOC(sizeof(LogManager *) * g_num_logger, GET_THD_ID); //new LogManager * [g_num_logger];
+                                                         ^~~~~~~~~~~~
+storage/parallel_log.cpp: In member function 'bool ParallelLogManager::tryFlush()':
+storage/parallel_log.cpp:165:23: error: 'GET_THD_ID' was not declared in this scope
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                       ^~~~~~~~~~
+storage/parallel_log.cpp:165:23: note: suggested alternative: 'SIGEV_THREAD_ID'
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                       ^~~~~~~~~~
+                       SIGEV_THREAD_ID
+storage/parallel_log.cpp:165:36: error: 'g_num_logger' was not declared in this scope
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                                    ^~~~~~~~~~~~
+storage/taurus_log.cpp:86:57: note: suggested alternative: 'g_num_wh'
+  _logger = (LogManager **)MALLOC(sizeof(LogManager *) * g_num_logger, GET_THD_ID); //new LogManager * [g_num_logger];
+                                                         ^~~~~~~~~~~~
+                                                         g_num_wh
+storage/taurus_log.cpp:86:71: error: 'GET_THD_ID' was not declared in this scope
+  _logger = (LogManager **)MALLOC(sizeof(LogManager *) * g_num_logger, GET_THD_ID); //new LogManager * [g_num_logger];
+                                                                       ^~~~~~~~~~
+storage/parallel_log.cpp:165:36: note: suggested alternative: 'g_num_wh'
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                                    ^~~~~~~~~~~~
+                                    g_num_wh
+storage/parallel_log.cpp:166:9: error: '_logger' was not declared in this scope
+  return _logger[logger_id]->tryFlush();
+         ^~~~~~~
+In file included from ./system/manager.h:3:0,
+                 from storage/parallel_log.cpp:1:
+storage/parallel_log.cpp: In member function 'bool ParallelLogManager::parallelLogTxn(char*, uint32_t, PredecessorInfo*, uint64_t, uint64_t)':
+storage/parallel_log.cpp:186:12: error: 'GET_THD_ID' was not declared in this scope
+  INC_STATS(GET_THD_ID, log_data, total_size);
+            ^
+./system/helper.h:87:16: note: in definition of macro 'INC_STATS'
+   stats._stats[tid]->name += value;
+                ^~~
+storage/taurus_log.cpp:86:71: note: suggested alternative: 'SIGEV_THREAD_ID'
+  _logger = (LogManager **)MALLOC(sizeof(LogManager *) * g_num_logger, GET_THD_ID); //new LogManager * [g_num_logger];
+                                                                       ^~~~~~~~~~
+                                                                       SIGEV_THREAD_ID
+storage/taurus_log.cpp:86:27: error: 'MALLOC' was not declared in this scope
+  _logger = (LogManager **)MALLOC(sizeof(LogManager *) * g_num_logger, GET_THD_ID); //new LogManager * [g_num_logger];
+                           ^~~~~~
+storage/parallel_log.cpp:186:12: note: suggested alternative: 'SIGEV_THREAD_ID'
+  INC_STATS(GET_THD_ID, log_data, total_size);
+            ^
+./system/helper.h:87:16: note: in definition of macro 'INC_STATS'
+   stats._stats[tid]->name += value;
+                ^~~
+storage/parallel_log.cpp:187:12: error: 'GET_THD_ID' was not declared in this scope
+  INC_STATS(GET_THD_ID, log_meta, metadata_size);
+            ^
+./system/helper.h:87:16: note: in definition of macro 'INC_STATS'
+   stats._stats[tid]->name += value;
+                ^~~
+storage/taurus_log.cpp:86:27: note: suggested alternative: 'TS_ALLOC'
+  _logger = (LogManager **)MALLOC(sizeof(LogManager *) * g_num_logger, GET_THD_ID); //new LogManager * [g_num_logger];
+                           ^~~~~~
+                           TS_ALLOC
+storage/taurus_log.cpp:106:25: error: 'g_num_disk' was not declared in this scope
+    dir += to_string(i % g_num_disk);
+                         ^~~~~~~~~~
+storage/parallel_log.cpp:187:12: note: suggested alternative: 'SIGEV_THREAD_ID'
+  INC_STATS(GET_THD_ID, log_meta, metadata_size);
+            ^
+./system/helper.h:87:16: note: in definition of macro 'INC_STATS'
+   stats._stats[tid]->name += value;
+                ^~~
+storage/parallel_log.cpp: In member function 'void ParallelLogManager::logFence(uint64_t)':
+storage/parallel_log.cpp:271:27: error: 'g_num_logger' was not declared in this scope
+  for (uint32_t i = 0; i < g_num_logger; i ++)
+                           ^~~~~~~~~~~~
+storage/taurus_log.cpp:106:25: note: suggested alternative: 'g_num_wh'
+    dir += to_string(i % g_num_disk);
+                         ^~~~~~~~~~
+                         g_num_wh
+storage/taurus_log.cpp: In member function 'uint64_t TaurusLogManager::tryFlush()':
+storage/taurus_log.cpp:132:23: error: 'GET_THD_ID' was not declared in this scope
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                       ^~~~~~~~~~
+storage/parallel_log.cpp:271:27: note: suggested alternative: 'g_num_wh'
+  for (uint32_t i = 0; i < g_num_logger; i ++)
+                           ^~~~~~~~~~~~
+                           g_num_wh
+storage/parallel_log.cpp:272:3: error: '_logger' was not declared in this scope
+   _logger[ i ]->logTxn(epoch_entry, size);
+   ^~~~~~~
+storage/taurus_log.cpp:132:23: note: suggested alternative: 'SIGEV_THREAD_ID'
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                       ^~~~~~~~~~
+                       SIGEV_THREAD_ID
+storage/taurus_log.cpp:132:36: error: 'g_num_logger' was not declared in this scope
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                                    ^~~~~~~~~~~~
+In file included from /usr/include/c++/7/cassert:44:0,
+                 from /usr/include/boost/predef/detail/_cassert.h:12,
+                 from /usr/include/boost/predef/library/c/_prefix.h:11,
+                 from /usr/include/boost/predef/library/c.h:13,
+                 from /usr/include/boost/predef/library.h:13,
+                 from /usr/include/boost/predef.h:16,
+                 from /usr/include/boost/lockfree/detail/prefix.hpp:23,
+                 from /usr/include/boost/lockfree/detail/tagged_ptr.hpp:13,
+                 from /usr/include/boost/lockfree/detail/freelist.hpp:26,
+                 from /usr/include/boost/lockfree/queue.hpp:22,
+                 from ./system/log_recover_table.h:5,
+                 from storage/parallel_log.cpp:4:
+storage/parallel_log.cpp: In member function 'bool ParallelLogManager::readLogEntry(char*&, char*&, uint64_t&)':
+storage/parallel_log.cpp:338:10: error: 'LOG_TYPE' was not declared in this scope
+   assert(LOG_TYPE == LOG_COMMAND);
+          ^
+storage/parallel_log.cpp:338:10: note: suggested alternative: 'LC_CTYPE'
+storage/parallel_log.cpp: In member function 'uint64_t ParallelLogManager::get_curr_fence_ts()':
+storage/parallel_log.cpp:386:37: error: 'GET_THD_ID' was not declared in this scope
+  uint32_t logger_id = get_logger_id(GET_THD_ID);
+                                     ^~~~~~~~~~
+Makefile:28: recipe for target 'storage/log.o' failed
+make: *** [storage/log.o] Error 1
+storage/taurus_log.cpp:132:36: note: suggested alternative: 'g_num_wh'
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                                    ^~~~~~~~~~~~
+                                    g_num_wh
+storage/taurus_log.cpp:155:9: error: '_logger' was not declared in this scope
+  return _logger[logger_id]->tryFlush();
+         ^~~~~~~
+storage/parallel_log.cpp:386:37: note: suggested alternative: 'SIGEV_THREAD_ID'
+  uint32_t logger_id = get_logger_id(GET_THD_ID);
+                                     ^~~~~~~~~~
+                                     SIGEV_THREAD_ID
+storage/taurus_log.cpp: In member function 'uint64_t TaurusLogManager::flushPSN()':
+storage/taurus_log.cpp:164:66: error: 'g_num_logger' was not declared in this scope
+  uint32_t total_size = sizeof(uint32_t) * 2 + sizeof(uint64_t) * g_num_logger;
+                                                                  ^~~~~~~~~~~~
+storage/taurus_log.cpp:164:66: note: suggested alternative: 'g_num_wh'
+  uint32_t total_size = sizeof(uint32_t) * 2 + sizeof(uint64_t) * g_num_logger;
+                                                                  ^~~~~~~~~~~~
+                                                                  g_num_wh
+storage/taurus_log.cpp:170:14: error: '_logger' was not declared in this scope
+   psn_t[i] = _logger[i]->get_persistent_lsn();
+              ^~~~~~~
+storage/taurus_log.cpp:171:23: error: 'GET_THD_ID' was not declared in this scope
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                       ^~~~~~~~~~
+storage/taurus_log.cpp:171:23: note: suggested alternative: 'SIGEV_THREAD_ID'
+  uint32_t logger_id = GET_THD_ID % g_num_logger;
+                       ^~~~~~~~~~
+                       SIGEV_THREAD_ID
+storage/taurus_log.cpp:172:19: error: 'int_aux_bytes' was not declared in this scope
+  INC_INT_STATS_V0(int_aux_bytes, total_size);
+                   ^~~~~~~~~~~~~
+storage/taurus_log.cpp:172:19: note: suggested alternative: 'intmax_t'
+  INC_INT_STATS_V0(int_aux_bytes, total_size);
+                   ^~~~~~~~~~~~~
+                   intmax_t
+storage/taurus_log.cpp:172:2: error: 'INC_INT_STATS_V0' was not declared in this scope
+  INC_INT_STATS_V0(int_aux_bytes, total_size);
+  ^~~~~~~~~~~~~~~~
+storage/taurus_log.cpp:172:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS_V0(int_aux_bytes, total_size);
+  ^~~~~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/taurus_log.cpp:175:17: error: '_logger' was not declared in this scope
+  uint64_t lsn = _logger[logger_id]->logTxn(psn_entry, total_size);
+                 ^~~~~~~
+storage/taurus_log.cpp: At global scope:
+storage/taurus_log.cpp:191:70: error: 'lsnType' has not been declared
+ TaurusLogManager::serialLogTxn(char *log_entry, uint32_t entry_size, lsnType *lsn_vec, uint32_t designated_logger_id)
+                                                                      ^~~~~~~
+storage/taurus_log.cpp: In member function 'uint64_t TaurusLogManager::serialLogTxn(char*, uint32_t, int*, uint32_t)':
+storage/taurus_log.cpp:197:16: error: 'int_num_log' was not declared in this scope
+  INC_INT_STATS(int_num_log, 1);
+                ^~~~~~~~~~~
+storage/taurus_log.cpp:197:16: note: suggested alternative: 'isalnum_l'
+  INC_INT_STATS(int_num_log, 1);
+                ^~~~~~~~~~~
+                isalnum_l
+storage/taurus_log.cpp:197:2: error: 'INC_INT_STATS' was not declared in this scope
+  INC_INT_STATS(int_num_log, 1);
+  ^~~~~~~~~~~~~
+Makefile:28: recipe for target 'storage/parallel_log.o' failed
+make: *** [storage/parallel_log.o] Error 1
+storage/taurus_log.cpp:197:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS(int_num_log, 1);
+  ^~~~~~~~~~~~~
+  INC_TMP_STATS
+storage/taurus_log.cpp:237:56: error: 'g_num_logger' was not declared in this scope
+  uint32_t total_size = entry_size + sizeof(uint64_t) * g_num_logger; // + sizeof(uint64_t);
+                                                        ^~~~~~~~~~~~
+storage/taurus_log.cpp:237:56: note: suggested alternative: 'g_num_wh'
+  uint32_t total_size = entry_size + sizeof(uint64_t) * g_num_logger; // + sizeof(uint64_t);
+                                                        ^~~~~~~~~~~~
+                                                        g_num_wh
+In file included from /usr/include/c++/7/cassert:44:0,
+                 from storage/row.h:3,
+                 from storage/taurus_log.h:5,
+                 from storage/taurus_log.cpp:2:
+storage/taurus_log.cpp:238:22: error: 'g_max_log_entry_size' was not declared in this scope
+  assert(total_size < g_max_log_entry_size);
+                      ^
+storage/taurus_log.cpp:238:22: note: suggested alternative: 'entry_size'
+storage/taurus_log.cpp:242:19: error: 'int_aux_bytes' was not declared in this scope
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+                   ^~~~~~~~~~~~~
+In file included from system/log_recover_table.cpp:2:0:
+system/log_recover_table.h:52:18: error: 'MAX_LOG_ENTRY_SIZE' was not declared in this scope
+   char log_entry[MAX_LOG_ENTRY_SIZE];
+                  ^~~~~~~~~~~~~~~~~~
+storage/taurus_log.cpp:242:19: note: suggested alternative: 'intmax_t'
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+                   ^~~~~~~~~~~~~
+                   intmax_t
+storage/taurus_log.cpp:242:2: error: 'INC_INT_STATS_V0' was not declared in this scope
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+  ^~~~~~~~~~~~~~~~
+system/log_recover_table.h:52:18: note: suggested alternative: 'MAX_TUPLE_SIZE'
+   char log_entry[MAX_LOG_ENTRY_SIZE];
+                  ^~~~~~~~~~~~~~~~~~
+                  MAX_TUPLE_SIZE
+In file included from system/log_recover_table.cpp:5:0:
+./storage/parallel_log.h: In member function 'uint32_t ParallelLogManager::get_logger_id(uint64_t)':
+./storage/parallel_log.h:88:63: error: 'g_num_logger' was not declared in this scope
+     uint32_t get_logger_id(uint64_t thd_id) { return thd_id % g_num_logger; }
+                                                               ^~~~~~~~~~~~
+./storage/parallel_log.h:88:63: note: suggested alternative: '_logger'
+     uint32_t get_logger_id(uint64_t thd_id) { return thd_id % g_num_logger; }
+                                                               ^~~~~~~~~~~~
+                                                               _logger
+system/log_recover_table.cpp: In member function 'LogRecoverTable::TxnNode* LogRecoverTable::get_new_node(uint64_t)':
+system/log_recover_table.cpp:16:17: error: 'hash64' was not declared in this scope
+  uint64_t bid = hash64(tid) % _num_buckets;
+                 ^~~~~~
+system/log_recover_table.cpp:16:17: note: suggested alternative: 'nanf64'
+  uint64_t bid = hash64(tid) % _num_buckets;
+                 ^~~~~~
+                 nanf64
+system/log_recover_table.cpp:25:28: error: 'GET_THD_ID' was not declared in this scope
+   if (*_next_free_node_idx[GET_THD_ID] < _num_free_nodes_per_thread) {
+                            ^~~~~~~~~~
+storage/taurus_log.cpp:242:2: note: suggested alternative: 'INC_TMP_STATS'
+  INC_INT_STATS_V0(int_aux_bytes, g_num_logger * sizeof(uint64_t));
+  ^~~~~~~~~~~~~~~~
+  INC_TMP_STATS
+In file included from ./system/manager.h:3:0,
+                 from storage/taurus_log.cpp:1:
+storage/taurus_log.cpp:243:12: error: 'GET_THD_ID' was not declared in this scope
+  INC_STATS(GET_THD_ID, log_data, total_size);
+            ^
+./system/helper.h:87:16: note: in definition of macro 'INC_STATS'
+   stats._stats[tid]->name += value;
+                ^~~
+system/log_recover_table.cpp:25:28: note: suggested alternative: 'SIGEV_THREAD_ID'
+   if (*_next_free_node_idx[GET_THD_ID] < _num_free_nodes_per_thread) {
+                            ^~~~~~~~~~
+                            SIGEV_THREAD_ID
+system/log_recover_table.cpp: In constructor 'LogRecoverTable::TxnPool::TxnPool()':
+system/log_recover_table.cpp:117:15: error: 'g_num_logger' was not declared in this scope
+  _num_pools = g_num_logger;
+               ^~~~~~~~~~~~
+system/log_recover_table.cpp:117:15: note: suggested alternative: '_num_pools'
+  _num_pools = g_num_logger;
+               ^~~~~~~~~~~~
+               _num_pools
+system/log_recover_table.cpp:118:15: error: 'g_num_pools' was not declared in this scope
+  _num_pools = g_num_pools; //num_logger;
+               ^~~~~~~~~~~
+storage/taurus_log.cpp:243:12: note: suggested alternative: 'SIGEV_THREAD_ID'
+  INC_STATS(GET_THD_ID, log_data, total_size);
+            ^
+./system/helper.h:87:16: note: in definition of macro 'INC_STATS'
+   stats._stats[tid]->name += value;
+                ^~~
+storage/taurus_log.cpp:261:12: error: 'lsnType' was not declared in this scope
+  if(sizeof(lsnType)==sizeof(uint64_t))
+            ^~~~~~~
+system/log_recover_table.cpp:118:15: note: suggested alternative: '_num_pools'
+  _num_pools = g_num_pools; //num_logger;
+               ^~~~~~~~~~~
+               _num_pools
+storage/taurus_log.cpp:261:12: note: suggested alternative: 'TsType'
+  if(sizeof(lsnType)==sizeof(uint64_t))
+            ^~~~~~~
+            TsType
+storage/taurus_log.cpp:269:17: error: 'ALIGN_SIZE' was not declared in this scope
+   if(lsn_addr % ALIGN_SIZE)
+                 ^~~~~~~~~~
+system/log_recover_table.cpp:122:62: error: 'GET_THD_ID' was not declared in this scope
+    MALLOC(sizeof(boost::lockfree::queue< TxnNode * >{1000}), GET_THD_ID);
+                                                              ^~~~~~~~~~
+storage/taurus_log.cpp:269:17: note: suggested alternative: 'CL_SIZE'
+   if(lsn_addr % ALIGN_SIZE)
+                 ^~~~~~~~~~
+                 CL_SIZE
+storage/taurus_log.cpp:291:16: error: 'time_STLother' was not declared in this scope
+  INC_INT_STATS(time_STLother, get_sys_clock() - starttime);
+                ^~~~~~~~~~~~~
+system/log_recover_table.cpp:122:62: note: suggested alternative: 'SIGEV_THREAD_ID'
+    MALLOC(sizeof(boost::lockfree::queue< TxnNode * >{1000}), GET_THD_ID);
+                                                              ^~~~~~~~~~
+                                                              SIGEV_THREAD_ID
+system/log_recover_table.cpp:122:4: error: 'MALLOC' was not declared in this scope
+    MALLOC(sizeof(boost::lockfree::queue< TxnNode * >{1000}), GET_THD_ID);
+    ^~~~~~
+system/log_recover_table.cpp:122:4: note: suggested alternative: 'TS_ALLOC'
+    MALLOC(sizeof(boost::lockfree::queue< TxnNode * >{1000}), GET_THD_ID);
+    ^~~~~~
+    TS_ALLOC
+system/log_recover_table.cpp: In member function 'void LogRecoverTable::TxnPool::add(LogRecoverTable::TxnNode*)':
+system/log_recover_table.cpp:130:21: error: 'hash64' was not declared in this scope
+  uint32_t pool_id = hash64(node->tid) % _num_pools;
+                     ^~~~~~
+system/log_recover_table.cpp:130:21: note: suggested alternative: 'nanf64'
+  uint32_t pool_id = hash64(node->tid) % _num_pools;
+                     ^~~~~~
+                     nanf64
+system/log_recover_table.cpp: In member function 'void* LogRecoverTable::TxnPool::get_txn(char*&)':
+system/log_recover_table.cpp:140:25: error: 'GET_THD_ID' was not declared in this scope
+  bool success = _pools[ GET_THD_ID % _num_pools]->pop(node);
+                         ^~~~~~~~~~
+system/log_recover_table.cpp:140:25: note: suggested alternative: 'SIGEV_THREAD_ID'
+  bool success = _pools[ GET_THD_ID % _num_pools]->pop(node);
+                         ^~~~~~~~~~
+                         SIGEV_THREAD_ID
+system/log_recover_table.cpp:142:21: error: 'class LogRecoverTable::TxnNode' has no member named 'log_entry'
+   log_entry = node->log_entry;
+                     ^~~~~~~~~
+storage/taurus_log.cpp:311:12: error: '_logger' was not declared in this scope
+   newlsn = _logger[logger_id]->logTxn(log_entry, offset, 0, true);
+            ^~~~~~~
+system/log_recover_table.cpp: In constructor 'LogRecoverTable::LogRecoverTable()':
+system/log_recover_table.cpp:180:20: error: 'g_log_parallel_num_buckets' was not declared in this scope
+     _num_buckets = g_log_parallel_num_buckets;
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+storage/taurus_log.cpp:315:17: error: 'int_serialLogFail' was not declared in this scope
+   INC_INT_STATS(int_serialLogFail, 1);
+                 ^~~~~~~~~~~~~~~~~
+storage/taurus_log.cpp:315:17: note: suggested alternative: 'serialLogTxn'
+   INC_INT_STATS(int_serialLogFail, 1);
+                 ^~~~~~~~~~~~~~~~~
+                 serialLogTxn
+system/log_recover_table.cpp:190:67: error: 'GET_THD_ID' was not declared in this scope
+   _recover_done[i] = (bool *) MALLOC(sizeof(bool) * g_thread_cnt, GET_THD_ID);
+                                                                   ^~~~~~~~~~
+storage/taurus_log.cpp: In member function 'uint64_t TaurusLogManager::get_persistent_lsn()':
+storage/taurus_log.cpp:344:9: error: '_logger' was not declared in this scope
+  return _logger[0]->get_persistent_lsn();
+         ^~~~~~~
+system/log_recover_table.cpp:190:67: note: suggested alternative: 'SIGEV_THREAD_ID'
+   _recover_done[i] = (bool *) MALLOC(sizeof(bool) * g_thread_cnt, GET_THD_ID);
+                                                                   ^~~~~~~~~~
+                                                                   SIGEV_THREAD_ID
+system/log_recover_table.cpp:190:31: error: 'MALLOC' was not declared in this scope
+   _recover_done[i] = (bool *) MALLOC(sizeof(bool) * g_thread_cnt, GET_THD_ID);
+                               ^~~~~~
+system/log_recover_table.cpp:190:31: note: suggested alternative: 'TS_ALLOC'
+   _recover_done[i] = (bool *) MALLOC(sizeof(bool) * g_thread_cnt, GET_THD_ID);
+                               ^~~~~~
+                               TS_ALLOC
+system/log_recover_table.cpp: In member function 'void LogRecoverTable::addTxn(uint64_t, char*)':
+system/log_recover_table.cpp:234:17: error: 'hash64' was not declared in this scope
+  uint64_t bid = hash64(tid) % _num_buckets;
+                 ^~~~~~
+system/log_recover_table.cpp:234:17: note: suggested alternative: 'nanf64'
+  uint64_t bid = hash64(tid) % _num_buckets;
+                 ^~~~~~
+                 nanf64
+system/log_recover_table.cpp:250:2: error: 'UNPACK' was not declared in this scope
+  UNPACK(log_entry, size, offset);
+  ^~~~~~
+system/log_recover_table.cpp:250:2: note: suggested alternative: 'ENOLCK'
+  UNPACK(log_entry, size, offset);
+  ^~~~~~
+  ENOLCK
+system/log_recover_table.cpp:253:2: error: 'UNPACK_SIZE' was not declared in this scope
+  UNPACK_SIZE(log_entry, node->raw_pred, sizeof(uint64_t) * node->num_raw_pred, offset);
+  ^~~~~~~~~~~
+system/log_recover_table.cpp:253:2: note: suggested alternative: 'PAGE_SIZE'
+  UNPACK_SIZE(log_entry, node->raw_pred, sizeof(uint64_t) * node->num_raw_pred, offset);
+  ^~~~~~~~~~~
+  PAGE_SIZE
+In file included from /usr/include/c++/7/cassert:44:0,
+                 from /usr/include/boost/predef/detail/_cassert.h:12,
+                 from /usr/include/boost/predef/library/c/_prefix.h:11,
+                 from /usr/include/boost/predef/library/c.h:13,
+                 from /usr/include/boost/predef/library.h:13,
+                 from /usr/include/boost/predef.h:16,
+                 from /usr/include/boost/lockfree/detail/prefix.hpp:23,
+                 from /usr/include/boost/lockfree/detail/tagged_ptr.hpp:13,
+                 from /usr/include/boost/lockfree/detail/freelist.hpp:26,
+                 from /usr/include/boost/lockfree/queue.hpp:22,
+                 from system/log_recover_table.h:5,
+                 from system/log_recover_table.cpp:2:
+system/log_recover_table.cpp:265:29: error: 'MAX_LOG_ENTRY_SIZE' was not declared in this scope
+  assert(size > 0 && size <= MAX_LOG_ENTRY_SIZE);
+                             ^
+system/log_recover_table.cpp:265:29: note: suggested alternative: 'MAX_TUPLE_SIZE'
+system/log_recover_table.cpp:266:15: error: 'class LogRecoverTable::TxnNode' has no member named 'log_entry'
+  memcpy(node->log_entry, log_entry + offset, size - offset);
+               ^~~~~~~~~
+system/log_recover_table.cpp:292:17: error: 'num_raw_edges' was not declared in this scope
+   INC_INT_STATS(num_raw_edges, 1);
+                 ^~~~~~~~~~~~~
+system/log_recover_table.cpp:292:3: error: 'INC_INT_STATS' was not declared in this scope
+   INC_INT_STATS(num_raw_edges, 1);
+   ^~~~~~~~~~~~~
+system/log_recover_table.cpp:292:3: note: suggested alternative: 'INC_TMP_STATS'
+   INC_INT_STATS(num_raw_edges, 1);
+   ^~~~~~~~~~~~~
+   INC_TMP_STATS
+system/log_recover_table.cpp:315:17: error: 'num_waw_edges' was not declared in this scope
+   INC_INT_STATS(num_waw_edges, 1);
+                 ^~~~~~~~~~~~~
+system/log_recover_table.cpp:315:3: error: 'INC_INT_STATS' was not declared in this scope
+   INC_INT_STATS(num_waw_edges, 1);
+   ^~~~~~~~~~~~~
+system/log_recover_table.cpp:315:3: note: suggested alternative: 'INC_TMP_STATS'
+   INC_INT_STATS(num_waw_edges, 1);
+   ^~~~~~~~~~~~~
+   INC_TMP_STATS
+system/log_recover_table.cpp: In member function 'void LogRecoverTable::buildSucc()':
+system/log_recover_table.cpp:332:38: error: 'GET_THD_ID' was not declared in this scope
+  uint64_t start_bid = _num_buckets * GET_THD_ID / g_thread_cnt;
+                                      ^~~~~~~~~~
+system/log_recover_table.cpp:332:38: note: suggested alternative: 'SIGEV_THREAD_ID'
+  uint64_t start_bid = _num_buckets * GET_THD_ID / g_thread_cnt;
+                                      ^~~~~~~~~~
+                                      SIGEV_THREAD_ID
+system/log_recover_table.cpp:346:37: error: 'hash64' was not declared in this scope
+     TxnNode * pred_node = _buckets[ hash64(pred_tid) % _num_buckets ].find_txn(pred_tid);
+                                     ^~~~~~
+system/log_recover_table.cpp:346:37: note: suggested alternative: 'nanf64'
+     TxnNode * pred_node = _buckets[ hash64(pred_tid) % _num_buckets ].find_txn(pred_tid);
+                                     ^~~~~~
+                                     nanf64
+system/log_recover_table.cpp:358:20: error: 'num_raw_edges' was not declared in this scope
+      INC_INT_STATS(num_raw_edges, 1);
+                    ^~~~~~~~~~~~~
+system/log_recover_table.cpp:358:6: error: 'INC_INT_STATS' was not declared in this scope
+      INC_INT_STATS(num_raw_edges, 1);
+      ^~~~~~~~~~~~~
+system/log_recover_table.cpp:358:6: note: suggested alternative: 'INC_TMP_STATS'
+      INC_INT_STATS(num_raw_edges, 1);
+      ^~~~~~~~~~~~~
+      INC_TMP_STATS
+system/log_recover_table.cpp:371:37: error: 'hash64' was not declared in this scope
+     TxnNode * pred_node = _buckets[ hash64(pred_tid) % _num_buckets ].find_txn(pred_tid);
+                                     ^~~~~~
+system/log_recover_table.cpp:371:37: note: suggested alternative: 'nanf64'
+     TxnNode * pred_node = _buckets[ hash64(pred_tid) % _num_buckets ].find_txn(pred_tid);
+                                     ^~~~~~
+                                     nanf64
+system/log_recover_table.cpp:377:20: error: 'num_waw_edges' was not declared in this scope
+      INC_INT_STATS(num_waw_edges, 1);
+                    ^~~~~~~~~~~~~
+Makefile:28: recipe for target 'storage/taurus_log.o' failed
+make: *** [storage/taurus_log.o] Error 1
+system/log_recover_table.cpp:377:6: error: 'INC_INT_STATS' was not declared in this scope
+      INC_INT_STATS(num_waw_edges, 1);
+      ^~~~~~~~~~~~~
+system/log_recover_table.cpp:377:6: note: suggested alternative: 'INC_TMP_STATS'
+      INC_INT_STATS(num_waw_edges, 1);
+      ^~~~~~~~~~~~~
+      INC_TMP_STATS
+system/log_recover_table.cpp: In member function 'void* LogRecoverTable::get_txn(char*&)':
+system/log_recover_table.cpp:498:18: error: 'GET_THD_ID' was not declared in this scope
+   *_recover_done[GET_THD_ID] = true;
+                  ^~~~~~~~~~
+system/log_recover_table.cpp:498:18: note: suggested alternative: 'SIGEV_THREAD_ID'
+   *_recover_done[GET_THD_ID] = true;
+                  ^~~~~~~~~~
+                  SIGEV_THREAD_ID
+system/log_recover_table.cpp: In member function 'void LogRecoverTable::remove_txn(void*, char*&, void*&)':
+system/log_recover_table.cpp:534:26: error: 'class LogRecoverTable::TxnNode' has no member named 'log_entry'
+   log_entry = next_node->log_entry;
+                          ^~~~~~~~~
+Makefile:28: recipe for target 'system/log_recover_table.o' failed
+make: *** [system/log_recover_table.o] Error 1

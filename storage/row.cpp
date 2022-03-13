@@ -63,12 +63,65 @@ row_t::init(table_t * host_table, uint64_t part_id, uint64_t row_id) {
 	Catalog * schema = host_table->get_schema();
 	int tuple_size = schema->get_tuple_size();
 	data = (char *) _mm_malloc(sizeof(char) * tuple_size, 64);
+
+#if LOG_ALGORITHM == LOG_PARALLEL
+	_last_writer = (uint64_t)-1;
+//	for (uint32_t i = 0; i < 4; i++)
+//		_pred_vector[i] = 0;
+//  #if LOG_TYPE == LOG_COMMAND && LOG_RECOVER
+//	_version = NULL;
+//	_num_versions = 0;
+//	_min_ts = UINT64_MAX;
+//	_gc_time = 0;
+//#endif
+#endif
+#if !USE_LOCKTABLE
+// metadata if not using locktable
+#if LOG_ALGORITHM == LOG_TAURUS
+#if UPDATE_SIMD
+	assert(g_num_logger <= MAX_LOGGER_NUM_SIMD);
+	lsn_vec = (lsnType *)MALLOC(sizeof(lsnType) * MAX_LOGGER_NUM_SIMD * 2, GET_THD_ID);
+	readLV = lsn_vec + MAX_LOGGER_NUM_SIMD; // (lsnType*) MALLOC(sizeof(lsnType) * 4, GET_THD_ID);
+	memset(lsn_vec, 0, sizeof(lsnType) * MAX_LOGGER_NUM_SIMD * 2);
+#else
+	lsn_vec = (lsnType *)MALLOC(sizeof(lsnType) * g_num_logger * 2, GET_THD_ID);
+	readLV = lsn_vec + g_num_logger;
+	memset(lsn_vec, 0, sizeof(lsnType) * g_num_logger * 2);
+#endif
+#elif LOG_ALGORITHM == LOG_SERIAL
+	lsn = (lsnType *)MALLOC(sizeof(lsnType), GET_THD_ID);
+	*lsn = 0;
+#elif LOG_ALGORITHM == LOG_BATCH
+	//
+#endif
+#endif
+
 	return RCOK;
 }
 void 
 row_t::init(int size) 
 {
 	data = (char *) _mm_malloc(size, 64);
+	#if !USE_LOCKTABLE
+	// metadata if not using locktable
+	#if LOG_ALGORITHM == LOG_TAURUS
+	#if UPDATE_SIMD
+		assert(g_num_logger <= MAX_LOGGER_NUM_SIMD);
+		lsn_vec = (lsnType *)MALLOC(sizeof(lsnType) * MAX_LOGGER_NUM_SIMD * 2, GET_THD_ID);
+		readLV = lsn_vec + MAX_LOGGER_NUM_SIMD; // (lsnType*) MALLOC(sizeof(lsnType) * 4, GET_THD_ID);
+		memset(lsn_vec, 0, sizeof(lsnType) * MAX_LOGGER_NUM_SIMD * 2);
+	#else
+		lsn_vec = (lsnType *)MALLOC(sizeof(lsnType) * g_num_logger * 2, GET_THD_ID);
+		readLV = lsn_vec + g_num_logger;
+		memset(lsn_vec, 0, sizeof(lsnType) * g_num_logger * 2);
+	#endif
+	#elif LOG_ALGORITHM == LOG_SERIAL
+		lsn = (lsnType *)MALLOC(sizeof(lsnType), GET_THD_ID);
+		*lsn = 0;
+	#elif LOG_ALGORITHM == LOG_BATCH
+		//
+	#endif
+	#endif
 }
 
 RC 
@@ -261,7 +314,119 @@ void row_t::copy(char *src)
 void row_t::free_row() {
 	free(data);
 }
+RC row_t::get_row(access_t type, txn_man *txn, char *&data)
+{
+	RC rc = RCOK;
+	//uint64_t starttime = get_sys_clock();
+#if CC_ALG == WAIT_DIE || CC_ALG == NO_WAIT || CC_ALG == DL_DETECT
+	//uint64_t thd_id = txn->get_thd_id();
+	lock_t lt = (type == RD || type == SCAN) ? LOCK_SH : LOCK_EX;
+#if CC_ALG == DL_DETECT
+	uint64_t *txnids;
+	int txncnt;
+	rc = this->manager->lock_get(lt, txn, txnids, txncnt);
+#else
+	rc = this->manager->lock_get(lt, txn);
+#endif
+	//uint64_t afterlockget = get_sys_clock();
+	//INC_INT_STATS(time_debug6, afterlockget - starttime);
+	// TODO: do we implement writes?
+	// copy(data);
+	if (rc == RCOK)
+	{
+		data = this->get_data(); //row = this;
+#if !USE_LOCKTABLE
+#if LOG_ALGORITHM == LOG_TAURUS
+		uint64_t update_start_time = get_sys_clock();
+		if (type == WR)
+		{
+			//#pragma simd
+			//#pragma vector aligned
+#if UPDATE_SIMD
+#if LOG_TYPE == LOG_COMMAND || !DISTINGUISH_COMMAND_LOGGING
+			SIMD_PREFIX *local_readLV = (SIMD_PREFIX *)readLV;
+			SIMD_PREFIX *writeLV = (SIMD_PREFIX *)lsn_vec;
+			SIMD_PREFIX *LV = (SIMD_PREFIX *)txn->lsn_vector;
+			*LV = MM_MAX(*LV, MM_MAX(*local_readLV, *writeLV));
+#else
+			SIMD_PREFIX *writeLV = (SIMD_PREFIX *)lsn_vec;
+			SIMD_PREFIX *LV = (SIMD_PREFIX *)txn->lsn_vector;
+			*LV = MM_MAX(*LV, *writeLV);
+#endif
+#else
+#if LOG_TYPE == LOG_COMMAND
+			//lsnType *readLV = readLV;
+			lsnType *writeLV = lsn_vec;
+			for (uint32_t i = 0; i < G_NUM_LOGGER; ++i)
+			{
+				auto readLVI = readLV[i];
+				auto writeLVI = writeLV[i];
+				auto maxLVI = readLVI > writeLVI ? readLVI : writeLVI;
+				if (maxLVI > txn->lsn_vector[i])
+					txn->lsn_vector[i] = maxLVI;
+			}
+#else
+			lsnType *writeLV = lsn_vec;
+			for (uint32_t i = 0; i < G_NUM_LOGGER; ++i)
+			{		
+				auto writeLVI = writeLV[i];
+				if (writeLVI > txn->lsn_vector[i])
+					txn->lsn_vector[i] = writeLVI;
+			}
+#endif
+#endif
+		}
+		else
+		{
+			//#pragma simd
+			//#pragma vector aligned
+#if UPDATE_SIMD
+			SIMD_PREFIX *writeLV = (SIMD_PREFIX *)lsn_vec;
+			SIMD_PREFIX *LV = (SIMD_PREFIX *)txn->lsn_vector;
+			*LV = MM_MAX(*LV, *writeLV);
+#else
+			lsnType *writeLV = lsn_vec;
+			for (uint32_t i = 0; i < G_NUM_LOGGER; ++i)
+			{
+				auto writeLVI = writeLV[i];
+				if (writeLVI > txn->lsn_vector[i])
+					txn->lsn_vector[i] = writeLVI;
+			}
+#endif
+		}
+		INC_INT_STATS(time_lv_overhead, get_sys_clock() - update_start_time);
+#elif LOG_ALGORITHM == LOG_SERIAL
+		if (lsn[0] > txn->_max_lsn)
+			txn->_max_lsn = lsn[0];
+#endif
+#endif
+	}
+	else if (rc == Abort)
+	{
+	}
+	else if (rc == WAIT)
+	{
+		ASSERT(CC_ALG == WAIT_DIE || CC_ALG == DL_DETECT);
+		assert(false); // not implemented
+	}
+	//INC_INT_STATS(time_debug7, get_sys_clock() - afterlockget);
+	return rc;
 
+#elif CC_ALG == TICTOC || CC_ALG == SILO
+	// like OCC, tictoc also makes a local copy for each read/write
+	//row->table = get_table();
+	TsType ts_type = (type == RD) ? R_REQ : P_REQ;
+	// assert((uint64_t)this->manager > 0x700000000000);
+	rc = this->manager->access(txn, ts_type, data);
+	return rc;
+#elif CC_ALG == HSTORE || CC_ALG == VLL
+	row = this;
+	return rc;
+#else
+	assert(false);
+#endif
+	return rc;
+}
 RC row_t::get_row(access_t type, txn_man * txn, row_t *& row) {
 	RC rc = RCOK;
 #if CC_ALG == WAIT_DIE || CC_ALG == NO_WAIT || CC_ALG == DL_DETECT

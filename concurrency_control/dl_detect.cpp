@@ -101,7 +101,7 @@ int
 DL_detect::detect_cycle(uint64_t txnid) {
 	if (g_no_dl)
 		return 0;
-	uint64_t starttime = get_sys_clock();
+	// uint64_t starttime = get_sys_clock();
 	INC_GLOB_STATS(cycle_detect, 1);
 	bool deadlock = false;
 
@@ -134,8 +134,8 @@ DL_detect::detect_cycle(uint64_t txnid) {
 	mem_allocator.free(detect_data->visited, sizeof(bool)*V);
 	mem_allocator.free(detect_data->recStack, sizeof(bool)*V);
 	mem_allocator.free(detect_data, sizeof(DetectData));
-	uint64_t timespan = get_sys_clock() - starttime;
-	INC_GLOB_STATS(dl_detect_time, timespan);
+	// uint64_t timespan = get_sys_clock() - starttime;
+	// INC_GLOB_STATS(dl_detect_time, timespan);
 	if (deadlock) return 1;
 	else return 0;
 }

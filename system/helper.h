@@ -1,10 +1,26 @@
 #pragma once 
-
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS
+#endif 
+#include <inttypes.h>
 #include <cstdlib>
 #include <iostream>
 #include <stdint.h>
 #include "global.h"
 
+#include <unistd.h>
+#ifndef _GNU_SOURCE 
+#define _GNU_SOURCE
+#endif
+
+#include <sched.h>
+
+#ifndef NOGRAPHITE
+#define NOGRAPHITE true
+#endif
+
+#include <time.h>
+#include <sys/time.h>
 
 /************************************************/
 // atomic operations
@@ -22,10 +38,16 @@
 	__sync_fetch_and_add(&(dest), value)
 #define ATOM_SUB_FETCH(dest, value) \
 	__sync_sub_and_fetch(&(dest), value)
+#define ATOM_FETCH_SUB(dest, value) \
+__sync_fetch_and_sub(&(dest), value)
+
 
 #define COMPILER_BARRIER asm volatile("" ::: "memory");
 #define PAUSE { __asm__ ( "pause;" ); }
 //#define PAUSE usleep(1);
+
+#define LIKELY(condition) __builtin_expect((condition), 1)
+#define UNLIKELY(condition) __builtin_expect((condition), 0)
 
 /************************************************/
 // ASSERT Helper
@@ -89,17 +111,15 @@
 /************************************************/
 // STATS helper
 /************************************************/
+
 #define INC_STATS(tid, name, value) \
-	if (STATS_ENABLE) \
-		stats._stats[tid]->name += value;
+	;
 
 #define INC_TMP_STATS(tid, name, value) \
-	if (STATS_ENABLE) \
-		stats.tmp_stats[tid]->name += value;
+	;
 
 #define INC_GLOB_STATS(name, value) \
-	if (STATS_ENABLE) \
-		stats.name += value;
+	;
 
 
 #define INC_FLOAT_STATS_V0(name, value) {{ \
@@ -161,8 +181,33 @@
 	for (UInt32 i = 0; i < size; i++) \
 		*name[i] = value; \
 
+/////////////////////////////
+// packatize helper 
+/////////////////////////////
+#define PACK(buffer, var, offset) {\
+	memcpy(buffer + offset, &var, sizeof(var)); \
+	offset += sizeof(var); \
+}
+#define PACK_SIZE(buffer, ptr, size, offset) {\
+    if (size > 0) {\
+		memcpy(buffer + offset, ptr, size); \
+		offset += size; }}
+
+#define UNPACK(buffer, var, offset) {\
+	memcpy(&var, buffer + offset, sizeof(var)); \
+	offset += sizeof(var); \
+}
+#define UNPACK_SIZE(buffer, ptr, size, offset) {\
+    if (size > 0) {\
+		memcpy(ptr, buffer + offset, size); \
+		offset += size; }} 
+
 enum Data_type {DT_table, DT_page, DT_row };
 
+
+#define MALLOC_CONSTRUCTOR(type, var) \
+	{var = (type *) MALLOC(sizeof(type), GET_THD_ID); \
+	new(var) type();}
 // TODO currently, only DR_row supported
 // data item type. 
 class itemid_t {
@@ -193,6 +238,15 @@ uint64_t merge_idx_key(uint64_t key1, uint64_t key2);
 uint64_t merge_idx_key(uint64_t key1, uint64_t key2, uint64_t key3);
 
 extern timespec * res;
+inline double get_wall_time(){ // used to calibrate wrong CPU_FREQ
+    struct timeval time;
+    if (gettimeofday(&time,NULL)){
+        //  Handle error
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * .000001;
+}
+
 inline uint64_t get_server_clock() {
 #if defined(__i386__)
     uint64_t ret;
@@ -250,3 +304,78 @@ inline void set_affinity(uint64_t thd_id) {
 	sched_setaffinity(0, sizeof(cpu_set_t), &mask);
 	*/
 }
+
+
+uint64_t hash64(uint64_t x);
+
+typedef uint64_t uint64_t_aligned64 __attribute__ ((aligned (128)));
+struct cacheline {
+		volatile uint64_t _val __attribute__((aligned(64)));
+		uint64_t _dummy[7];
+		inline operator uint64_t() const {
+			return _val;
+		}
+		inline void operator=(const volatile uint64_t & val)
+		{
+			_val = val;
+		}
+};
+
+struct cacheline8 {
+		volatile uint64_t _val __attribute__((aligned(64)));
+		//uint64_t _dummy[7];
+		
+		inline operator uint64_t() const {
+			return _val;
+		}
+		inline void operator=(const uint64_t & val)
+		{
+			_val = val;
+		}
+};
+
+typedef uint64_t* recoverLV_t;
+
+#ifdef __APPLE__
+struct drand48_data
+{
+unsigned short int __x[3];  /* Current state.  */
+unsigned short int __old_x[3]; /* Old state.  */
+unsigned short int __c;     /* Additive const. in congruential formula.  */
+unsigned short int __init;  /* Flag for initializing.  */
+unsigned long long int __a; /* Factor in congruential formula.  */
+};
+#endif
+
+/*
+static inline void *aa_alloc(uint size, uint align)
+{
+	void *ret = NULL;
+	if(posix_memalign(&ret, align, size))
+		return NULL;
+	return ret;
+}
+#define _mm_malloc aa_alloc
+*/
+
+#define ALIGN_SIZE 64
+
+#ifndef O_DIRECT
+#define O_DIRECT (0)
+#endif
+
+inline uint64_t aligned(uint64_t size)
+{
+	if (size % ALIGN_SIZE == 0) return size;
+	return size / ALIGN_SIZE * ALIGN_SIZE + ALIGN_SIZE;
+}
+
+#define MAX(a, b) ((a)>(b)?(a):(b))
+
+/*
+#if defined(__clang__) || defined (__GNUC__)
+# define ATTRIBUTE_NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
+#else
+# define ATTRIBUTE_NO_SANITIZE_ADDRESS
+#endif
+*/

@@ -4,6 +4,12 @@
 #include "mem_alloc.h"
 #include "manager.h"
 
+#if CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE || CC_ALG == DL_DETECT
+
+#define CONFLICT(a, b) (a != LOCK_NONE && b != LOCK_NONE) && (a==LOCK_EX || b==LOCK_EX)
+
+
+
 void Row_lock::init(row_t * row) {
 	_row = row;
 	owners = NULL;
@@ -245,3 +251,4 @@ void Row_lock::return_entry(LockEntry * entry) {
 	mem_allocator.free(entry, sizeof(LockEntry));
 }
 
+#endif

@@ -54,7 +54,7 @@
 /***********************************************/
 // WAIT_DIE, NO_WAIT, DL_DETECT, TIMESTAMP, MVCC, HEKATON, HSTORE, OCC, VLL, TICTOC, SILO
 // TODO TIMESTAMP does not work at this moment
-#define CC_ALG 						TICTOC
+#define CC_ALG 						NO_WAIT
 #define ISOLATION_LEVEL 			SERIALIZABLE
 
 
@@ -147,11 +147,12 @@
 #define MAX_ROW_PER_TXN				64
 #define QUERY_INTVL 				1UL
 #define MAX_TXN_PER_PART 			100
+#define MAX_TXNS_PER_THREAD (150000)
 #define FIRST_PART_LOCAL 			true
 #define MAX_TUPLE_SIZE				1024 // in bytes
 // ==== [YCSB] ====
 #define INIT_PARALLELISM			40
-#define SYNTH_TABLE_SIZE 			(1024 * 40)
+#define SYNTH_TABLE_SIZE 			(1024 * 1024 * 40)
 #define ZIPF_THETA 					0.6
 #define READ_PERC 					0.9
 #define WRITE_PERC 					0.1

@@ -68,7 +68,7 @@ typedef uint64_t ts_t; // time stamp type
 // Global Data Structure 
 /******************************************/
 extern mem_alloc mem_allocator;
-extern Stats stats;
+extern Stats * stats;
 extern DL_detect dl_detector;
 extern Manager * glob_manager;
 extern Query_queue * query_queue;
@@ -119,6 +119,8 @@ extern VLLMan vll_man;
 extern bool volatile warmup_finish;
 extern bool volatile enable_thread_mem_pool;
 extern pthread_barrier_t warmup_bar;
+extern pthread_barrier_t worker_bar;
+extern pthread_barrier_t log_bar;
 #ifndef NOGRAPHITE
 extern carbon_barrier_t enable_barrier;
 #endif
@@ -129,6 +131,7 @@ extern carbon_barrier_t enable_barrier;
 extern bool g_part_alloc;
 extern bool g_mem_pad;
 extern bool g_prt_lat_distr;
+extern uint64_t g_max_num_epoch;
 extern UInt32 g_part_cnt;
 extern UInt32 g_virtual_part_cnt;
 extern UInt32 g_thread_cnt;
@@ -142,6 +145,25 @@ extern ts_t g_dl_loop_detect;
 extern bool g_ts_batch_alloc;
 extern UInt32 g_ts_batch_num;
 
+extern uint64_t g_max_txns_per_thread;
+extern uint64_t g_flush_interval;
+extern uint32_t g_poolsize_wait;
+extern double g_recover_buffer_perc; //RECOVER_BUFFER_PERC
+
+extern uint64_t g_psn_flush_freq;
+extern uint64_t g_locktable_evict_buffer;
+
+extern bool g_abort_buffer_enable;
+extern bool g_pre_abort;
+extern bool g_atomic_timestamp; 
+extern string g_write_copy_form;
+extern string g_validation_lock;
+extern uint64_t g_rlv_delta;
+extern uint32_t g_loggingthread_rlv_freq;
+
+extern char * output_file;
+extern char * logging_dir;
+extern uint32_t g_log_parallel_num_buckets;
 extern map<string, string> g_params;
 
 // YCSB
@@ -156,7 +178,12 @@ extern UInt64 g_synth_table_size;
 extern UInt32 g_req_per_query;
 extern UInt32 g_field_per_tuple;
 extern UInt32 g_init_parallelism;
+extern uint64_t g_locktable_modifier;
+extern UInt32 g_locktable_init_slots;
 
+extern uint64_t g_queue_buffer_length;
+extern uint64_t g_flush_blocksize;
+extern uint64_t g_read_blocksize;
 // TPCC
 extern UInt32 g_num_wh;
 extern double g_perc_payment;
@@ -165,8 +192,10 @@ extern char * output_file;
 extern UInt32 g_max_items;
 extern UInt32 g_cust_per_dist;
 
+extern uint64_t PRIMES[];
 enum RC { RCOK, Commit, Abort, WAIT, ERROR, FINISH};
 
+enum DepType { RAW, WAW, WAR };
 /* Thread */
 typedef uint64_t txnid_t;
 
@@ -202,8 +231,7 @@ typedef uint64_t lsnType;
 enum access_t {RD, WR, XP, SCAN};
 /* LOCK */
 enum lock_t {LOCK_EX, LOCK_SH, LOCK_NONE };
-                                                            
-enum lock_t_logging {LOCK_NONE_T, LOCK_SH_T, LOCK_EX_T };
+
 /* TIMESTAMP */
 enum TsType {R_REQ, W_REQ, P_REQ, XP_REQ}; 
 
@@ -226,4 +254,10 @@ enum TsType {R_REQ, W_REQ, P_REQ, XP_REQ};
 #ifndef UINT64_MAX
 #define UINT64_MAX 		18446744073709551615UL
 #endif // UINT64_MAX
+#ifndef UINT32_MAX
+#define UINT32_MAX 		(0xffffffff)
+#endif // UINT64_MAX
 
+#define CONTENTION_THRESHOLD (1.0f)
+
+#define RLV_DELTA (10000)

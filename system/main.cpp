@@ -1,7 +1,6 @@
 #include "global.h"
 #include "ycsb.h"
 #include "tpcc.h"
-#include "test.h"
 #include "thread.h"
 #include "manager.h"
 #include "mem_alloc.h"
@@ -22,7 +21,7 @@ int main(int argc, char* argv[])
 	parser(argc, argv);
 	
 	mem_allocator.init(g_part_cnt, MEM_SIZE / g_part_cnt); 
-	stats.init();
+	stats->init();
 	glob_manager = (Manager *) _mm_malloc(sizeof(Manager), 64);
 	glob_manager->init();
 	if (g_cc_alg == DL_DETECT) 
@@ -99,7 +98,7 @@ int main(int argc, char* argv[])
 	if (WORKLOAD != TEST) {
 		printf("PASS! SimTime = %ld\n", endtime - starttime);
 		if (STATS_ENABLE)
-			stats.print();
+			stats->print();
 	} else {
 		((TestWorkload *)m_wl)->summarize();
 	}

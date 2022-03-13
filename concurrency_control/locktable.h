@@ -202,7 +202,7 @@ public:
         {
             //LockTableListItem & lti = **it;
 #if CC_ALG == NO_WAIT
-            if ((*it)->evicted || (*it)->row->manager->get_lock_type() != LOCK_NONE_T)
+            if ((*it)->evicted || (*it)->row->manager->get_lock_type() != LOCK_NONE)
 #elif CC_ALG == SILO && ATOMIC_WORD
             //if((*it)->evicted || ((*it)->keep || ((*it)->row->manager->_tid_word & LOCK_BIT)))
             if ((*it)->evicted || ((*it)->row->manager->_tid_word & LOCK_BIT))
@@ -419,7 +419,7 @@ public:
         }
 
 #else
-        lock_t_logging lt = (type == RD || type == SCAN) ? LOCK_SH_T : LOCK_EX_T;
+        lock_t lt = (type == RD || type == SCAN) ? LOCK_SH : LOCK_EX;
         if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
             return Abort;
         if (tryOnce)
@@ -586,7 +586,7 @@ public:
         {
             auto &lti = *it;
 #if CC_ALG == NO_WAIT
-            if (lti->evicted || (lti->row->manager->get_lock_type() == LOCK_NONE_T && try_evict_item(lti))) // we do not need to actually set 'lti->evicted = true' here.
+            if (lti->evicted || (lti->row->manager->get_lock_type() == LOCK_NONE && try_evict_item(lti))) // we do not need to actually set 'lti->evicted = true' here.
 #elif CC_ALG == SILO && ATOMIC_WORD
             //if(lti->evicted || (lti->keep == 0 && (lti->row->manager->_tid_word & LOCK_BIT)==0 && try_evict_item(lti))) // comment same as above
             if (lti->evicted || ((lti->row->manager->_tid_word & LOCK_BIT) == 0 && try_evict_item(lti))) // comment same as above

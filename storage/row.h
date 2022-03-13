@@ -37,10 +37,13 @@ class row_t
 public:
 
 	RC init(table_t * host_table, uint64_t part_id, uint64_t row_id = 0);
+	RC init(table_t * host_table, uint64_t part_id, uint64_t row_id, void * mem, void * lsn_vec_mem);
 	void init(int size);
 	RC switch_schema(table_t * host_table);
 	// not every row has a manager
+	static size_t get_manager_size();
 	void init_manager(row_t * row);
+	void init_manager(row_t * row, void* manager_ptr);
 
 	table_t * get_table();
 	Catalog * get_schema();
@@ -50,6 +53,7 @@ public:
 	uint64_t get_row_id() { return _row_id; };
 
 	void copy(row_t * src);
+	void copy(char * src);
 
 	void 		set_primary_key(uint64_t key) { _primary_key = key; };
 	uint64_t 	get_primary_key() {return _primary_key; };
@@ -74,14 +78,22 @@ public:
 	DECL_GET_VALUE(SInt32);
 
 
+
+	static char * get_value(Catalog * schema, uint32_t col_id, char * data);
+	static void   set_value(Catalog * schema, uint32_t col_id, char * data, char * value);
+
 	void set_data(char * data, uint64_t size);
 	char * get_data();
 
+	char * get_data(txn_man * txn, access_t type);
 	void free_row();
 
 	// for concurrency control. can be lock, timestamp etc.
+	RC get_row(access_t type, txn_man * txn, char *&data);
 	RC get_row(access_t type, txn_man * txn, row_t *& row);
 	void return_row(access_t type, txn_man * txn, row_t * row);
+
+	void return_row(access_t type, txn_man * txn, char * data, RC rc_in);
 	
   #if CC_ALG == DL_DETECT || CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE
     Row_lock * manager;
@@ -100,8 +112,30 @@ public:
   #elif CC_ALG == VLL
   	Row_vll * manager;
   #endif
+
+  #if !USE_LOCKTABLE
+// metadata if not using locktable
+#if LOG_ALGORITHM == LOG_TAURUS
+	lsnType * lsn_vec;
+    lsnType * readLV;
+#elif LOG_ALGORITHM == LOG_SERIAL
+	lsnType * lsn;
+#elif LOG_ALGORITHM == LOG_BATCH
+	//
+#endif
+#endif
 	char * data;
 	table_t * table;
+	uint64_t 		get_last_writer()	
+	{ return _last_writer; };
+	void 			set_last_writer(uint64_t last_writer)	
+	{ _last_writer = last_writer; }
+
+	// txnID of the last writer txn
+	volatile uint64_t 		_last_writer;
+	// TODO assume upto 4 loggers. 
+	//uint64_t		_pred_vector[4];
+	void *				_lti_addr;
 private:
 	// primary key should be calculated from the data stored in the row.
 	uint64_t 		_primary_key;

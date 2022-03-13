@@ -11,7 +11,6 @@
 #include "ycsb_query.h"
 #include "tpcc_query.h"
 #include "mem_alloc.h"
-#include "test.h"
 
 void thread_t::init(uint64_t thd_id, workload * workload) {
 	_thd_id = thd_id;
@@ -39,7 +38,7 @@ RC thread_t::run() {
 		mem_allocator.register_thread(_thd_id);
 	}
 	pthread_barrier_wait( &warmup_bar );
-	stats.init(get_thd_id());
+	stats->init(get_thd_id());
 	pthread_barrier_wait( &warmup_bar );
 
 	set_affinity(get_thd_id());
@@ -169,15 +168,15 @@ RC thread_t::run() {
 		uint64_t timespan = endtime - starttime;
 		INC_STATS(get_thd_id(), run_time, timespan);
 		INC_STATS(get_thd_id(), latency, timespan);
-		//stats.add_lat(get_thd_id(), timespan);
+		//stats->add_lat(get_thd_id(), timespan);
 		if (rc == RCOK) {
 			INC_STATS(get_thd_id(), txn_cnt, 1);
-			stats.commit(get_thd_id());
+			stats->commit(get_thd_id());
 			txn_cnt ++;
 		} else if (rc == Abort) {
 			INC_STATS(get_thd_id(), time_abort, timespan);
 			INC_STATS(get_thd_id(), abort_cnt, 1);
-			stats.abort(get_thd_id());
+			stats->abort(get_thd_id());
 			m_txn->abort_cnt ++;
 		}
 
@@ -185,7 +184,7 @@ RC thread_t::run() {
 			return rc;
 		if (!warmup_finish && txn_cnt >= WARMUP / g_thread_cnt) 
 		{
-			stats.clear( get_thd_id() );
+			stats->clear( get_thd_id() );
 			return FINISH;
 		}
 

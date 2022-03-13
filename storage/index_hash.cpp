@@ -2,6 +2,8 @@
 #include "index_hash.h"
 #include "mem_alloc.h"
 #include "table.h"
+#include "manager.h"
+
 
 RC IndexHash::init(uint64_t bucket_cnt, int part_cnt) {
 	_bucket_cnt = bucket_cnt;
@@ -37,6 +39,21 @@ IndexHash::release_latch(BucketHeader * bucket) {
 	assert(ok);
 }
 
+RC IndexHash::index_insert(idx_key_t key, itemid_t * item, int part_id, void * node_mem) {
+	RC rc = RCOK;
+	uint64_t bkt_idx = hash(key);
+	assert(bkt_idx < _bucket_cnt_per_part);
+	BucketHeader * cur_bkt = &_buckets[part_id][bkt_idx];
+	// 1. get the ex latch
+	get_latch(cur_bkt);
+	
+	// 2. update the latch list
+	cur_bkt->insert_item(key, item, part_id, node_mem);
+	
+	// 3. release the latch
+	release_latch(cur_bkt);
+	return rc;
+}
 	
 RC IndexHash::index_insert(idx_key_t key, itemid_t * item, int part_id) {
 	RC rc = RCOK;
@@ -90,6 +107,35 @@ void BucketHeader::init() {
 	locked = false;
 }
 
+void BucketHeader::insert_item(idx_key_t key, 
+		itemid_t * item, 
+		int part_id, void * node_mem) 
+{
+	BucketNode * cur_node = first_node;
+	BucketNode * prev_node = NULL;
+	while (cur_node != NULL) {
+		if (cur_node->key == key)
+			break;
+		prev_node = cur_node;
+		cur_node = cur_node->next;
+	}
+	if (cur_node == NULL) {		
+		//BucketNode * new_node = (BucketNode *) MALLOC(sizeof(BucketNode), GET_THD_ID);
+		BucketNode * new_node = (BucketNode *) node_mem;
+		new_node->init(key);
+		new_node->items = item;
+		if (prev_node != NULL) {
+			new_node->next = prev_node->next;
+			prev_node->next = new_node;
+		} else {
+			new_node->next = first_node;
+			first_node = new_node;
+		}
+	} else {
+		item->next = cur_node->items;
+		cur_node->items = item;
+	}
+}
 void BucketHeader::insert_item(idx_key_t key, 
 		itemid_t * item, 
 		int part_id) 

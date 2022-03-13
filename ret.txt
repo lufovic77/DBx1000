@@ -1,315 +1,140 @@
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o config.o config.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/test_txn.o benchmarks/test_txn.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/ycsb_query.o benchmarks/ycsb_query.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/tpcc_wl.o benchmarks/tpcc_wl.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/ycsb_wl.o benchmarks/ycsb_wl.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/tpcc_query.o benchmarks/tpcc_query.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/ycsb_txn.o benchmarks/ycsb_txn.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/tpcc_helper.o benchmarks/tpcc_helper.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/tpcc_txn.o benchmarks/tpcc_txn.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o benchmarks/test_wl.o benchmarks/test_wl.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/row_vll.o concurrency_control/row_vll.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/occ.o concurrency_control/occ.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/dl_detect.o concurrency_control/dl_detect.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/row_occ.o concurrency_control/row_occ.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/row_ts.o concurrency_control/row_ts.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/row_mvcc.o concurrency_control/row_mvcc.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/vll.o concurrency_control/vll.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/plock.o concurrency_control/plock.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/row_lock.o concurrency_control/row_lock.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/tictoc.o concurrency_control/tictoc.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/silo.o concurrency_control/silo.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/hekaton.o concurrency_control/hekaton.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/row_hekaton.o concurrency_control/row_hekaton.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/row_tictoc.o concurrency_control/row_tictoc.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/row_silo.o concurrency_control/row_silo.cpp
 g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o concurrency_control/locktable.o concurrency_control/locktable.cpp
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o storage/parallel_log.o storage/parallel_log.cpp
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o storage/taurus_log.o storage/taurus_log.cpp
 In file included from concurrency_control/locktable.cpp:4:0:
-concurrency_control/locktable.h: In static member function 'static void LockTable::printLockTable()':
-concurrency_control/locktable.h:159:33: error: expected ')' before 'PRIu64'
-                 printf("(%d, %" PRIu64 ", %" PRIu64 ", [", (*lti)->evicted, (*lti)->key, (uint64_t)(*lti)->row);
-                                 ^~~~~~
-concurrency_control/locktable.h:159:111: error: spurious trailing '%' in format [-Werror=format=]
-                 printf("(%d, %" PRIu64 ", %" PRIu64 ", [", (*lti)->evicted, (*lti)->key, (uint64_t)(*lti)->row);
-                                                                                                               ^
-concurrency_control/locktable.h:159:111: error: too many arguments for format [-Werror=format-extra-args]
-concurrency_control/locktable.h: In member function 'bool LockTable::release_lock(row_t*, access_t, txn_man*, char*, lsnType*, lsnType*, RC)':
-concurrency_control/locktable.h:244:23: error: 'int_debug9' was not declared in this scope
-         INC_INT_STATS(int_debug9, 1);
-                       ^~~~~~~~~~
-concurrency_control/locktable.h:244:9: error: 'INC_INT_STATS' was not declared in this scope
-         INC_INT_STATS(int_debug9, 1);
-         ^~~~~~~~~~~~~
-concurrency_control/locktable.h:244:9: note: suggested alternative: 'INC_TMP_STATS'
-         INC_INT_STATS(int_debug9, 1);
-         ^~~~~~~~~~~~~
-         INC_TMP_STATS
-concurrency_control/locktable.h:262:23: error: 'time_debug8' was not declared in this scope
-         INC_INT_STATS(time_debug8, afterCAS - starttime);
-                       ^~~~~~~~~~~
-concurrency_control/locktable.h:262:23: note: suggested alternative: 'timer_delete'
-         INC_INT_STATS(time_debug8, afterCAS - starttime);
-                       ^~~~~~~~~~~
-                       timer_delete
-concurrency_control/locktable.h:358:54: error: no matching function for call to 'row_t::return_row(access_t&, txn_man*&, char*&, RC)'
-                 row->return_row(type, txn, data, RCOK);
-                                                      ^
-In file included from concurrency_control/locktable.h:6:0,
-                 from concurrency_control/locktable.cpp:4:
-./storage/row.h:84:7: note: candidate: void row_t::return_row(access_t, txn_man*, row_t*)
-  void return_row(access_t type, txn_man * txn, row_t * row);
-       ^~~~~~~~~~
-./storage/row.h:84:7: note:   candidate expects 3 arguments, 4 provided
-In file included from concurrency_control/locktable.cpp:4:0:
-concurrency_control/locktable.h:362:31: error: 'time_debug9' was not declared in this scope
-                 INC_INT_STATS(time_debug9, get_sys_clock() - afterCAS);
-                               ^~~~~~~~~~~
-concurrency_control/locktable.h:362:31: note: suggested alternative: 'timer_delete'
-                 INC_INT_STATS(time_debug9, get_sys_clock() - afterCAS);
-                               ^~~~~~~~~~~
-                               timer_delete
-concurrency_control/locktable.h:363:31: error: 'int_debug10' was not declared in this scope
-                 INC_INT_STATS(int_debug10, counter);
-                               ^~~~~~~~~~~
-concurrency_control/locktable.h:375:23: error: 'time_debug9' was not declared in this scope
-         INC_INT_STATS(time_debug9, get_sys_clock() - afterCAS);
-                       ^~~~~~~~~~~
-concurrency_control/locktable.h:375:23: note: suggested alternative: 'timer_delete'
-         INC_INT_STATS(time_debug9, get_sys_clock() - afterCAS);
-                       ^~~~~~~~~~~
-                       timer_delete
-concurrency_control/locktable.h:376:23: error: 'int_debug10' was not declared in this scope
-         INC_INT_STATS(int_debug10, counter);
-                       ^~~~~~~~~~~
-g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o storage/serial_log.o storage/serial_log.cpp
+concurrency_control/locktable.h: In member function 'void LockTable::try_evict_locktable_bucket(LockTableValue&)':
+concurrency_control/locktable.h:205:75: error: comparison between 'enum lock_t' and 'enum lock_t_logging' [-Werror=enum-compare]
+             if ((*it)->evicted || (*it)->row->manager->get_lock_type() != LOCK_NONE_T)
+                                                                           ^~~~~~~~~~~
 In file included from concurrency_control/locktable.cpp:4:0:
 concurrency_control/locktable.h: In member function 'RC LockTable::get_row(row_t*, access_t, txn_man*, char*&, lsnType*, lsnType*, bool, uint64_t, bool)':
-concurrency_control/locktable.h:385:23: error: 'int_debug5' was not declared in this scope
-         INC_INT_STATS(int_debug5, 1); // the number of get_row
-                       ^~~~~~~~~~
-concurrency_control/locktable.h:385:9: error: 'INC_INT_STATS' was not declared in this scope
-         INC_INT_STATS(int_debug5, 1); // the number of get_row
-         ^~~~~~~~~~~~~
-concurrency_control/locktable.h:385:9: note: suggested alternative: 'INC_TMP_STATS'
-         INC_INT_STATS(int_debug5, 1); // the number of get_row
-         ^~~~~~~~~~~~~
-         INC_TMP_STATS
-concurrency_control/locktable.h:423:52: error: 'LOCK_SH_T' was not declared in this scope
-         lock_t lt = (type == RD || type == SCAN) ? LOCK_SH_T : LOCK_EX_T;
-                                                    ^~~~~~~~~
-concurrency_control/locktable.h:423:52: note: suggested alternative: 'LOCK_SH'
-         lock_t lt = (type == RD || type == SCAN) ? LOCK_SH_T : LOCK_EX_T;
-                                                    ^~~~~~~~~
-                                                    LOCK_SH
-concurrency_control/locktable.h:423:64: error: 'LOCK_EX_T' was not declared in this scope
-         lock_t lt = (type == RD || type == SCAN) ? LOCK_SH_T : LOCK_EX_T;
-                                                                ^~~~~~~~~
-concurrency_control/locktable.h:423:64: note: suggested alternative: 'LOCK_EX'
-         lock_t lt = (type == RD || type == SCAN) ? LOCK_SH_T : LOCK_EX_T;
-                                                                ^~~~~~~~~
-                                                                LOCK_EX
-concurrency_control/locktable.h:424:27: error: 'class Row_tictoc' has no member named 'conflict_lock'
+concurrency_control/locktable.h:423:74: error: no matching function for call to 'Row_lock::conflict_lock(lock_t_logging&, lock_t)'
          if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
-                           ^~~~~~~~~~~~~
-concurrency_control/locktable.h:424:59: error: 'class Row_tictoc' has no member named 'get_lock_type'
-         if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
-                                                           ^~~~~~~~~~~~~
-concurrency_control/locktable.h:436:35: error: 'class Row_tictoc' has no member named 'conflict_lock'
+                                                                          ^
+In file included from concurrency_control/locktable.h:8:0,
+                 from concurrency_control/locktable.cpp:4:
+concurrency_control/row_lock.h:54:9: note: candidate: bool Row_lock::conflict_lock(lock_t, lock_t)
+  bool   conflict_lock(lock_t l1, lock_t l2);
+         ^~~~~~~~~~~~~
+concurrency_control/row_lock.h:54:9: note:   no known conversion for argument 1 from 'lock_t_logging' to 'lock_t'
+In file included from concurrency_control/locktable.cpp:4:0:
+concurrency_control/locktable.h:435:82: error: no matching function for call to 'Row_lock::conflict_lock(lock_t_logging&, lock_t)'
                  if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
-                                   ^~~~~~~~~~~~~
-concurrency_control/locktable.h:436:67: error: 'class Row_tictoc' has no member named 'get_lock_type'
-                 if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
-                                                                   ^~~~~~~~~~~~~
-concurrency_control/locktable.h:443:23: error: 'time_debug0' was not declared in this scope
-         INC_INT_STATS(time_debug0, afterCAS - starttime);
-                       ^~~~~~~~~~~
-concurrency_control/locktable.h:443:23: note: suggested alternative: 'timer_delete'
-         INC_INT_STATS(time_debug0, afterCAS - starttime);
-                       ^~~~~~~~~~~
-                       timer_delete
-concurrency_control/locktable.h:444:26: error: 'int_num_get_row' was not declared in this scope
-         INC_INT_STATS_V0(int_num_get_row, 1);
-                          ^~~~~~~~~~~~~~~
-concurrency_control/locktable.h:444:9: error: 'INC_INT_STATS_V0' was not declared in this scope
-         INC_INT_STATS_V0(int_num_get_row, 1);
-         ^~~~~~~~~~~~~~~~
-concurrency_control/locktable.h:444:9: note: suggested alternative: 'INC_TMP_STATS'
-         INC_INT_STATS_V0(int_num_get_row, 1);
-         ^~~~~~~~~~~~~~~~
-         INC_TMP_STATS
-concurrency_control/locktable.h:445:26: error: 'int_locktable_volume' was not declared in this scope
-         INC_INT_STATS_V0(int_locktable_volume, ltv.li.size());
-                          ^~~~~~~~~~~~~~~~~~~~
-concurrency_control/locktable.h:445:26: note: suggested alternative: 'locktable_size'
-         INC_INT_STATS_V0(int_locktable_volume, ltv.li.size());
-                          ^~~~~~~~~~~~~~~~~~~~
-                          locktable_size
-concurrency_control/locktable.h:473:60: error: no matching function for call to 'row_t::get_row(access_t&, txn_man*&, char*&)'
+                                                                                  ^
+In file included from concurrency_control/locktable.h:8:0,
+                 from concurrency_control/locktable.cpp:4:
+concurrency_control/row_lock.h:54:9: note: candidate: bool Row_lock::conflict_lock(lock_t, lock_t)
+  bool   conflict_lock(lock_t l1, lock_t l2);
+         ^~~~~~~~~~~~~
+concurrency_control/row_lock.h:54:9: note:   no known conversion for argument 1 from 'lock_t_logging' to 'lock_t'
+In file included from concurrency_control/locktable.cpp:4:0:
+concurrency_control/locktable.h:472:60: error: no matching function for call to 'row_t::get_row(access_t&, txn_man*&, char*&)'
                      ret = lti->row->get_row(type, txn, data);
                                                             ^
 In file included from concurrency_control/locktable.h:6:0,
                  from concurrency_control/locktable.cpp:4:
-./storage/row.h:83:5: note: candidate: RC row_t::get_row(access_t, txn_man*, row_t*&)
+./storage/row.h:93:5: note: candidate: RC row_t::get_row(access_t, txn_man*, row_t*&)
   RC get_row(access_t type, txn_man * txn, row_t *& row);
      ^~~~~~~
-./storage/row.h:83:5: note:   no known conversion for argument 3 from 'char*' to 'row_t*&'
+./storage/row.h:93:5: note:   no known conversion for argument 3 from 'char*' to 'row_t*&'
 In file included from concurrency_control/locktable.cpp:4:0:
-concurrency_control/locktable.h:474:31: error: 'time_debug4' was not declared in this scope
-                 INC_INT_STATS(time_debug4, get_sys_clock() - afterCAS);
-                               ^~~~~~~~~~~
-concurrency_control/locktable.h:474:31: note: suggested alternative: 'timer_delete'
-                 INC_INT_STATS(time_debug4, get_sys_clock() - afterCAS);
-                               ^~~~~~~~~~~
-                               timer_delete
-concurrency_control/locktable.h:576:31: error: 'int_debug4' was not declared in this scope
-                 INC_INT_STATS(int_debug4, counter);
-                               ^~~~~~~~~~
-concurrency_control/locktable.h:577:31: error: 'time_debug1' was not declared in this scope
-                 INC_INT_STATS(time_debug1, get_sys_clock() - afterCAS);
-                               ^~~~~~~~~~~
-concurrency_control/locktable.h:577:31: note: suggested alternative: 'timer_delete'
-                 INC_INT_STATS(time_debug1, get_sys_clock() - afterCAS);
-                               ^~~~~~~~~~~
-                               timer_delete
-concurrency_control/locktable.h:581:23: error: 'int_debug6' was not declared in this scope
-         INC_INT_STATS(int_debug6, 1);
-                       ^~~~~~~~~~
-concurrency_control/locktable.h:583:23: error: 'int_debug4' was not declared in this scope
-         INC_INT_STATS(int_debug4, counter);
-                       ^~~~~~~~~~
-concurrency_control/locktable.h:584:23: error: 'time_debug1' was not declared in this scope
-         INC_INT_STATS(time_debug1, afterSearch - afterCAS);
-                       ^~~~~~~~~~~
-concurrency_control/locktable.h:584:23: note: suggested alternative: 'timer_delete'
-         INC_INT_STATS(time_debug1, afterSearch - afterCAS);
-                       ^~~~~~~~~~~
-                       timer_delete
-concurrency_control/locktable.h:601:22: error: 'class row_t' has no member named '_lti_addr'
-                 row->_lti_addr = (void *)&(*lti);
-                      ^~~~~~~~~
-concurrency_control/locktable.h:689:55: error: no matching function for call to 'row_t::get_row(access_t&, txn_man*&, char*&)'
+concurrency_control/locktable.h:589:72: error: comparison between 'enum lock_t' and 'enum lock_t_logging' [-Werror=enum-compare]
+             if (lti->evicted || (lti->row->manager->get_lock_type() == LOCK_NONE_T && try_evict_item(lti))) // we do not need to actually set 'lti->evicted = true' here.
+                                                                        ^~~~~~~~~~~
+concurrency_control/locktable.h:688:55: error: no matching function for call to 'row_t::get_row(access_t&, txn_man*&, char*&)'
                      ret = row->get_row(type, txn, data);
                                                        ^
 In file included from concurrency_control/locktable.h:6:0,
                  from concurrency_control/locktable.cpp:4:
-./storage/row.h:83:5: note: candidate: RC row_t::get_row(access_t, txn_man*, row_t*&)
+./storage/row.h:93:5: note: candidate: RC row_t::get_row(access_t, txn_man*, row_t*&)
   RC get_row(access_t type, txn_man * txn, row_t *& row);
      ^~~~~~~
-./storage/row.h:83:5: note:   no known conversion for argument 3 from 'char*' to 'row_t*&'
-In file included from concurrency_control/locktable.cpp:4:0:
-concurrency_control/locktable.h:692:31: error: 'time_debug2' was not declared in this scope
-                 INC_INT_STATS(time_debug2, get_sys_clock() - afterSearch);
-                               ^~~~~~~~~~~
-concurrency_control/locktable.h:692:31: note: suggested alternative: 'timer_delete'
-                 INC_INT_STATS(time_debug2, get_sys_clock() - afterSearch);
-                               ^~~~~~~~~~~
-                               timer_delete
-concurrency_control/locktable.h:697:23: error: 'int_debug7' was not declared in this scope
-         INC_INT_STATS(int_debug7, 1);
-                       ^~~~~~~~~~
-concurrency_control/locktable.h:699:23: error: 'time_debug2' was not declared in this scope
-         INC_INT_STATS(time_debug2, afterReuse - afterSearch);
-                       ^~~~~~~~~~~
-concurrency_control/locktable.h:699:23: note: suggested alternative: 'timer_delete'
-         INC_INT_STATS(time_debug2, afterReuse - afterSearch);
-                       ^~~~~~~~~~~
-                       timer_delete
+./storage/row.h:93:5: note:   no known conversion for argument 3 from 'char*' to 'row_t*&'
 In file included from concurrency_control/locktable.cpp:1:0:
-./config.h:331:38: error: 'ALIGN_SIZE' was not declared in this scope
+./config.h:350:38: error: 'ALIGN_SIZE' was not declared in this scope
  #define MM_MALLOC(x,y) _mm_malloc(x, ALIGN_SIZE)
                                       ^
-./config.h:341:16: note: in expansion of macro 'MM_MALLOC'
+./config.h:360:16: note: in expansion of macro 'MM_MALLOC'
  #define MALLOC MM_MALLOC
                 ^~~~~~~~~
-concurrency_control/locktable.h:701:55: note: in expansion of macro 'MALLOC'
+concurrency_control/locktable.h:700:55: note: in expansion of macro 'MALLOC'
          LockTableListItem *lti = (LockTableListItem *)MALLOC(sizeof(LockTableListItem), GET_THD_ID);
                                                        ^~~~~~
-./config.h:331:38: note: suggested alternative: 'PAGE_SIZE'
+./config.h:350:38: note: suggested alternative: 'PAGE_SIZE'
  #define MM_MALLOC(x,y) _mm_malloc(x, ALIGN_SIZE)
                                       ^
-./config.h:341:16: note: in expansion of macro 'MM_MALLOC'
+./config.h:360:16: note: in expansion of macro 'MM_MALLOC'
  #define MALLOC MM_MALLOC
                 ^~~~~~~~~
-concurrency_control/locktable.h:701:55: note: in expansion of macro 'MALLOC'
+concurrency_control/locktable.h:700:55: note: in expansion of macro 'MALLOC'
          LockTableListItem *lti = (LockTableListItem *)MALLOC(sizeof(LockTableListItem), GET_THD_ID);
                                                        ^~~~~~
 In file included from concurrency_control/locktable.cpp:4:0:
-concurrency_control/locktable.h:725:47: error: no matching function for call to 'row_t::get_row(access_t&, txn_man*&, char*&)'
+concurrency_control/locktable.h:724:47: error: no matching function for call to 'row_t::get_row(access_t&, txn_man*&, char*&)'
              ret = row->get_row(type, txn, data);
                                                ^
 In file included from concurrency_control/locktable.h:6:0,
                  from concurrency_control/locktable.cpp:4:
-./storage/row.h:83:5: note: candidate: RC row_t::get_row(access_t, txn_man*, row_t*&)
+./storage/row.h:93:5: note: candidate: RC row_t::get_row(access_t, txn_man*, row_t*&)
   RC get_row(access_t type, txn_man * txn, row_t *& row);
      ^~~~~~~
-./storage/row.h:83:5: note:   no known conversion for argument 3 from 'char*' to 'row_t*&'
+./storage/row.h:93:5: note:   no known conversion for argument 3 from 'char*' to 'row_t*&'
 In file included from concurrency_control/locktable.cpp:4:0:
-concurrency_control/locktable.h:771:14: error: 'class row_t' has no member named '_lti_addr'
-         row->_lti_addr = (void *)lti; // this must be updated after lti->lsn_vec is ready.
-              ^~~~~~~~~
-concurrency_control/locktable.h:773:23: error: 'time_debug3' was not declared in this scope
-         INC_INT_STATS(time_debug3, get_sys_clock() - afterReuse);
-                       ^~~~~~~~~~~
-concurrency_control/locktable.h:773:23: note: suggested alternative: 'timer_delete'
-         INC_INT_STATS(time_debug3, get_sys_clock() - afterReuse);
-                       ^~~~~~~~~~~
-                       timer_delete
 concurrency_control/locktable.h: In constructor 'LockTable::LockTable()':
-concurrency_control/locktable.h:817:26: error: 'g_locktable_modifier' was not declared in this scope
+concurrency_control/locktable.h:816:26: error: 'g_locktable_modifier' was not declared in this scope
          locktable_size = g_locktable_modifier * g_thread_cnt * g_req_per_query;
                           ^~~~~~~~~~~~~~~~~~~~
-concurrency_control/locktable.h:817:26: note: suggested alternative: 'locktable_size'
+concurrency_control/locktable.h:816:26: note: suggested alternative: 'locktable_size'
          locktable_size = g_locktable_modifier * g_thread_cnt * g_req_per_query;
                           ^~~~~~~~~~~~~~~~~~~~
                           locktable_size
 In file included from concurrency_control/locktable.cpp:1:0:
-./config.h:331:38: error: 'ALIGN_SIZE' was not declared in this scope
+./config.h:350:38: error: 'ALIGN_SIZE' was not declared in this scope
  #define MM_MALLOC(x,y) _mm_malloc(x, ALIGN_SIZE)
                                       ^
-./config.h:341:16: note: in expansion of macro 'MM_MALLOC'
+./config.h:360:16: note: in expansion of macro 'MM_MALLOC'
  #define MALLOC MM_MALLOC
                 ^~~~~~~~~
-concurrency_control/locktable.h:839:37: note: in expansion of macro 'MALLOC'
+concurrency_control/locktable.h:838:37: note: in expansion of macro 'MALLOC'
          hashMap = (LockTableValue *)MALLOC(sizeof(LockTableValue) * locktable_size, GET_THD_ID);
                                      ^~~~~~
-./config.h:331:38: note: suggested alternative: 'PAGE_SIZE'
+./config.h:350:38: note: suggested alternative: 'PAGE_SIZE'
  #define MM_MALLOC(x,y) _mm_malloc(x, ALIGN_SIZE)
                                       ^
-./config.h:341:16: note: in expansion of macro 'MM_MALLOC'
+./config.h:360:16: note: in expansion of macro 'MM_MALLOC'
  #define MALLOC MM_MALLOC
                 ^~~~~~~~~
-concurrency_control/locktable.h:839:37: note: in expansion of macro 'MALLOC'
+concurrency_control/locktable.h:838:37: note: in expansion of macro 'MALLOC'
          hashMap = (LockTableValue *)MALLOC(sizeof(LockTableValue) * locktable_size, GET_THD_ID);
                                      ^~~~~~
 In file included from concurrency_control/locktable.cpp:4:0:
-concurrency_control/locktable.h:841:28: error: 'aligned' was not declared in this scope
+concurrency_control/locktable.h:840:28: error: 'aligned' was not declared in this scope
          uint32_t ltiSize = aligned(sizeof(LockTableListItem));
                             ^~~~~~~
-concurrency_control/locktable.h:841:28: note: suggested alternative: 'signed'
+concurrency_control/locktable.h:840:28: note: suggested alternative: 'signed'
          uint32_t ltiSize = aligned(sizeof(LockTableListItem));
                             ^~~~~~~
                             signed
 In file included from concurrency_control/locktable.cpp:1:0:
-concurrency_control/locktable.h:851:97: error: 'g_locktable_init_slots' was not declared in this scope
+concurrency_control/locktable.h:850:97: error: 'g_locktable_init_slots' was not declared in this scope
          char *ltiBuffer0 = (char *)MALLOC((ltiSize + ltiCacheSize) * (locktable_size / 2 + 1) * g_locktable_init_slots, 0);
                                                                                                  ^
-./config.h:331:35: note: in definition of macro 'MM_MALLOC'
+./config.h:350:35: note: in definition of macro 'MM_MALLOC'
  #define MM_MALLOC(x,y) _mm_malloc(x, ALIGN_SIZE)
                                    ^
-concurrency_control/locktable.h:851:36: note: in expansion of macro 'MALLOC'
+concurrency_control/locktable.h:850:36: note: in expansion of macro 'MALLOC'
          char *ltiBuffer0 = (char *)MALLOC((ltiSize + ltiCacheSize) * (locktable_size / 2 + 1) * g_locktable_init_slots, 0);
                                     ^~~~~~
-concurrency_control/locktable.h:851:97: note: suggested alternative: 'locktable_size'
+concurrency_control/locktable.h:850:97: note: suggested alternative: 'locktable_size'
          char *ltiBuffer0 = (char *)MALLOC((ltiSize + ltiCacheSize) * (locktable_size / 2 + 1) * g_locktable_init_slots, 0);
                                                                                                  ^
-./config.h:331:35: note: in definition of macro 'MM_MALLOC'
+./config.h:350:35: note: in definition of macro 'MM_MALLOC'
  #define MM_MALLOC(x,y) _mm_malloc(x, ALIGN_SIZE)
                                    ^
-concurrency_control/locktable.h:851:36: note: in expansion of macro 'MALLOC'
+concurrency_control/locktable.h:850:36: note: in expansion of macro 'MALLOC'
          char *ltiBuffer0 = (char *)MALLOC((ltiSize + ltiCacheSize) * (locktable_size / 2 + 1) * g_locktable_init_slots, 0);
                                     ^~~~~~
+g++ -c -Wall -g -std=c++0x -I. -I./benchmarks -I./concurrency_control -I./storage -I./system  -lrt -lpthread -msse4.2 -march=native -ffast-math -Werror -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3 -o storage/catalog.o storage/catalog.cpp
 cc1plus: all warnings being treated as errors
-Makefile:28: recipe for target 'concurrency_control/locktable.o' failed
+Makefile:52: recipe for target 'concurrency_control/locktable.o' failed
 make: *** [concurrency_control/locktable.o] Error 1
 make: *** Waiting for unfinished jobs....

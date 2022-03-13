@@ -15,9 +15,11 @@ void ycsb_query::init(uint64_t thd_id, workload * h_wl, Query_thd * query_thd) {
 	part_to_access = (uint64_t *) 
 		mem_allocator.alloc(sizeof(uint64_t) * g_part_per_txn, thd_id);
 	zeta_2_theta = zeta(2, g_zipf_theta);
+	//cout << "Initialize YCSB query with theta = " << g_zipf_theta << endl;
 	assert(the_n != 0);
 	assert(denom != 0);
 	gen_requests(thd_id, h_wl);
+	_stored_procedure_id = 0;
 }
 
 void 
@@ -50,6 +52,7 @@ uint64_t ycsb_query::zipf(uint64_t n, double theta) {
 		(1 - zeta_2_theta / zetan);
 	double u; 
 	drand48_r(&_query_thd->buffer, &u);
+    //u = erand48(_query_thd->buffer);
 	double uz = u * zetan;
 	if (uz < 1) return 1;
 	if (uz < 1 + pow(0.5, theta)) return 2;
@@ -67,6 +70,8 @@ void ycsb_query::gen_requests(uint64_t thd_id, workload * h_wl) {
 	int64_t rint64 = 0;
 	drand48_r(&_query_thd->buffer, &r);
 	lrand48_r(&_query_thd->buffer, &rint64);
+    //r = erand48( _query_thd->buffer );
+    //rint64 = nrand48( _query_thd->buffer );
 	if (r < g_perc_multi_part) {
 		for (UInt32 i = 0; i < g_part_per_txn; i++) {
 			if (i == 0 && FIRST_PART_LOCAL)
@@ -93,15 +98,9 @@ void ycsb_query::gen_requests(uint64_t thd_id, workload * h_wl) {
 	for (UInt32 tmp = 0; tmp < g_req_per_query; tmp ++) {		
 		double r;
 		drand48_r(&_query_thd->buffer, &r);
+		//r = erand48(_query_thd->buffer);
 		ycsb_request * req = &requests[rid];
-		if (r < g_read_perc) {
-			req->rtype = RD;
-		} else if (r >= g_read_perc && r <= g_write_perc + g_read_perc) {
-			req->rtype = WR;
-		} else {
-			req->rtype = SCAN;
-			req->scan_len = SCAN_LEN;
-		}
+		req->rtype = (r < g_read_perc)? RD : WR;
 
 		// the request will access part_id.
 		uint64_t ith = tmp * part_num / g_req_per_query;
@@ -114,8 +113,9 @@ void ycsb_query::gen_requests(uint64_t thd_id, workload * h_wl) {
 		req->key = primary_key;
 		int64_t rint64;
 		lrand48_r(&_query_thd->buffer, &rint64);
+		//rint64 = nrand48(_query_thd->buffer);
 		req->value = rint64 % (1<<8);
-		// Make sure a single row is not accessed twice
+		// Make sure a single row is not accessed twice // Assumption
 		if (req->rtype == RD || req->rtype == WR) {
 			if (all_keys.find(req->key) == all_keys.end()) {
 				all_keys.insert(req->key);

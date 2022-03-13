@@ -110,6 +110,17 @@ UInt32 g_virtual_part_cnt = VIRTUAL_PART_CNT;
 UInt32 g_thread_cnt = THREAD_CNT;
 UInt64 g_synth_table_size = SYNTH_TABLE_SIZE;
 UInt32 g_req_per_query = REQ_PER_QUERY;
+
+
+
+uint64_t g_locktable_modifier = LOCKTABLE_MODIFIER;
+UInt32 g_locktable_init_slots = LOCKTABLE_INIT_SLOTS;
+
+
+
+
+
+
 UInt32 g_field_per_tuple = FIELD_PER_TUPLE;
 UInt32 g_init_parallelism = INIT_PARALLELISM;
 

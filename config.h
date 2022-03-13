@@ -1,13 +1,15 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-
 /***********************************************/
 #define VERBOSE_LEVEL               0 // 0 for nothing
 #define VERBOSE_TXNLV               1
 #define VERBOSE_TXNLV_UPDATE        2
 #define VERBOSE_LOCKTABLE_TXNLV_UPDATE  4
 #define VERBOSE_SQL_CONTENT         8
+/***********************************************/
+
+
 
 /***********************************************/
 // Simulation + Hardware
@@ -24,7 +26,7 @@
 // # of transactions to run for warmup
 #define WARMUP						0
 // YCSB or TPCC
-#define WORKLOAD 					YCSB
+#define WORKLOAD YCSB
 // print the transaction latency distribution
 #define PRT_LAT_DISTR				false
 #define STATS_ENABLE				true
@@ -52,7 +54,7 @@
 /***********************************************/
 // WAIT_DIE, NO_WAIT, DL_DETECT, TIMESTAMP, MVCC, HEKATON, HSTORE, OCC, VLL, TICTOC, SILO
 // TODO TIMESTAMP does not work at this moment
-#define CC_ALG 						TICTOC
+#define CC_ALG HEKATON
 #define ISOLATION_LEVEL 			SERIALIZABLE
 
 
@@ -108,8 +110,6 @@
 #define VALIDATION_LOCK				"no-wait" // no-wait or waiting
 #define PRE_ABORT					"true"
 #define ATOMIC_WORD					true
-
-#define EPOCH_PERIOD				5 // ms
 // [HSTORE]
 // when set to true, hstore will not access the global timestamp.
 // This is fine for single partition transactions. 
@@ -123,9 +123,8 @@
 #define LOG_REDO					false
 #define LOG_BATCH_TIME				10 // in ms
 
-
-#define LOG_ALGORITHM LOG_BATCH
-#define LOG_TYPE LOG_DATA
+#define LOG_ALGORITHM               LOG_PLOVER // LOG_TAURUS
+#define LOG_TYPE                    LOG_DATA
 #define LOG_RAM_DISK				false
 #define LOG_NO_FLUSH			 	false
 #define LOG_RECOVER                 false
@@ -136,12 +135,11 @@
 #define NUM_LOGGER					1 // the number of loggers
 #define LOG_PARALLEL_NUM_BUCKETS    4000000	// should equal the number of recovered txns
 #define MAX_LOG_ENTRY_SIZE			16384 // in Bytes
-#define LOG_FLUSH_INTERVAL 0
+#define LOG_FLUSH_INTERVAL   		50000000 // in us. 
 #define TRACK_WAR_DEPENDENCY		true // necessary only for logical or command logging.  
 #define LOG_PARALLEL_REC_NUM_POOLS  THREAD_CNT 
 #define LOG_CHUNK_SIZE  			(1048576 * 10)
 #define NEXT_TXN_OPT				true
-
 /***********************************************/
 // Benchmark
 /***********************************************/
@@ -149,11 +147,12 @@
 #define MAX_ROW_PER_TXN				64
 #define QUERY_INTVL 				1UL
 #define MAX_TXN_PER_PART 			100
+#define MAX_TXNS_PER_THREAD (150000)
 #define FIRST_PART_LOCAL 			true
 #define MAX_TUPLE_SIZE				1024 // in bytes
 // ==== [YCSB] ====
 #define INIT_PARALLELISM			40
-#define SYNTH_TABLE_SIZE 			(1024 * 40)
+#define SYNTH_TABLE_SIZE 			(1024 * 1024 * 40)
 #define ZIPF_THETA 					0.6
 #define READ_PERC 					0.9
 #define WRITE_PERC 					0.1
@@ -282,17 +281,17 @@ extern TestCases					g_test_case;
 #define LOCKTABLE_EVICT_BUFFER		30000
 #define SOLVE_LIVELOCK				true
 #define POOLSIZE_WAIT				2000 // if pool size is too small it might cause live lock.
-#define PER_WORKER_RECOVERY 		(false)
 #define RECOVER_BUFFER_PERC			(0.5)
 #define TAURUS_RECOVER_BATCH_SIZE	(500)
 #define ASYNC_IO					true
 #define DECODE_AT_WORKER			false
-#define UPDATE_SIMD (true)
-#define SCAN_WINDOW 2
-#define BIG_HASH_TABLE_MODE (true)
-#define PROCESS_DEPENDENCY_LOGGER (false)
+#define UPDATE_SIMD					true
+#define SCAN_WINDOW					2
+#define BIG_HASH_TABLE_MODE			true // true // false
+#define PROCESS_DEPENDENCY_LOGGER   false
 #define PARTITION_AWARE				false // this switch does not bring much benefit for YCSB
-#define TAURUS_CHUNK				false
+#define PER_WORKER_RECOVERY			true // false //true
+#define TAURUS_CHUNK				true
 #define TAURUS_CHUNK_MEMCPY			true
 #define DISTINGUISH_COMMAND_LOGGING	true
 // big hash table mode means locktable evict buffer is infinite.
@@ -325,6 +324,7 @@ extern TestCases					g_test_case;
 // SIMD Config
 /************************************/
 
+#define G_NUM_LOGGER g_num_logger
 #define MAX_LOGGER_NUM_SIMD 16
 #define SIMD_PREFIX __m512i // __m256i
 #define MM_MAX _mm512_max_epu32 //_mm256_max_epu32
@@ -332,18 +332,12 @@ extern TestCases					g_test_case;
 #define MM_CMP _mm512_cmp_epu32_mask
 #define MM_EXP_LOAD _mm512_maskz_expandloadu_epi32
 #define MM_INTERLEAVE_MASK 0x5555
-#if UPDATE_SIMD
-#define G_NUM_LOGGER MAX_LOGGER_NUM_SIMD
-#else
-#define G_NUM_LOGGER g_num_logger
-#endif
-
 #define NUM_CORES_PER_SLOT	(24)
 #define NUMA_NODE_NUM	(2)
 #define HYPER_THREADING_FACTOR (2) // in total 24 * 2 * 2 = 96
 
 /************************************/
-#define OUTPUT_AVG_RATIO 0.5
+#define OUTPUT_AVG_RATIO 0.9
 
 #include "config-assertions.h"
 
@@ -353,16 +347,19 @@ extern TestCases					g_test_case;
 #define NUMA_MALLOC(x,y) numa_alloc_onnode(x, ((y) % g_num_logger) % NUMA_NODE_NUM)
 #define NUMA_FREE(x,y) numa_free(x, y)
 
-#if WORKLOAD == YCSB && CC_ALG == SILO
+#if WORKLOAD == YCSB
 #define MALLOC NUMA_MALLOC
 #define FREE NUMA_FREE
 #else
+// TPC-C workloads are generating too many memory allocations.
+// Each numa_alloc_onnode will create a separate mmap. It could be disastrous
 #define MALLOC MM_MALLOC
 #define FREE MM_FREE
 #endif
 
 ///////// MISC
 #define WORK_IN_PROGRESS true
+
 
 
 #endif

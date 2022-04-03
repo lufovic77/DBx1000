@@ -41,9 +41,10 @@ public:
 	void init(int size);
 	RC switch_schema(table_t * host_table);
 	// not every row has a manager
-	static size_t get_manager_size();
 	void init_manager(row_t * row);
 	void init_manager(row_t * row, void* manager_ptr);
+
+	static size_t get_manager_size();
 
 	table_t * get_table();
 	Catalog * get_schema();

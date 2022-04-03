@@ -218,7 +218,7 @@ thread_t::get_next_ts() {
 }
 
 RC thread_t::runTest(txn_man * txn)
-{
+{/*
 	RC rc = RCOK;
 	if (g_test_case == READ_WRITE) {
 		rc = ((TestTxnMan *)txn)->run_txn(g_test_case, 0);
@@ -237,5 +237,5 @@ RC thread_t::runTest(txn_man * txn)
 			return rc;
 	}
 	assert(false);
-	return RCOK;
+	*/return RCOK;
 }

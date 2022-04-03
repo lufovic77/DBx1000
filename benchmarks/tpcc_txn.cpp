@@ -851,7 +851,7 @@ tpcc_txn_man::recover_txn(char * log_entry, uint64_t tid)
 		uint64_t t3 = get_sys_clock();
 		INC_INT_STATS(time_debug5, t3 - t2);
 		row_t * row = ((row_t *)m_item->location);
-	#if LOG_ALGORITHM == LOG_BATCH
+	#if LOG_ALGORITHM == LOG_BATCH && CC_ALG == SILO
 		row->manager->lock(this);
 		INC_INT_STATS(time_debug6, get_sys_clock() - t3);
 		uint64_t cur_tid = row->manager->get_tid();

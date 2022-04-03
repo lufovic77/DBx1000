@@ -86,7 +86,8 @@ public:
 	// following are public for OCC
 	int 			row_cnt;
 	int	 			wr_cnt;
-	Access **		accesses;
+	Access **		accesses;		
+	uint32_t * 		write_set;		// store indexes to accesses for writes 
 	int 			num_accesses_alloc;
 
 	// For VLL

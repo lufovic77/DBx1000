@@ -129,7 +129,7 @@ ycsb_txn_man::recover_txn(char * log_entry, uint64_t tid)
 		
 		itemid_t * m_item = index_read(_wl->the_index, key, 0);
 		row_t * row = ((row_t *)m_item->location);
-	#if LOG_ALGORITHM == LOG_BATCH
+	#if LOG_ALGORITHM == LOG_BATCH && CC_ALG == SILO
 		// Silo needs to check versions
         uint64_t cur_tid = row->manager->get_tid(); // non-conflicting trial
         if (tid > cur_tid) { // optimization

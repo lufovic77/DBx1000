@@ -66,7 +66,7 @@ public:
 		//poolItem *next;
 	};
 	poolItem *** SPSCPools;
-	volatile uint64_t * workerDone __attribute__((aligned(64)));
+	volatile uint64_t * workerDone; __attribute__((aligned(64)));
 	uint64_t padding_poolSE[8];
 	volatile uint64_t * SPSCPoolStart;
 	volatile uint64_t * SPSCPoolEnd;

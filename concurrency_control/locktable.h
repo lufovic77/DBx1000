@@ -419,9 +419,12 @@ public:
         }
 
 #else
-        lock_t lt = (type == RD || type == SCAN) ? LOCK_SH : LOCK_EX;
-        if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
-            return Abort;
+        
+        #if CC_ALG != HEKATON
+            lock_t lt = (type == RD || type == SCAN) ? LOCK_SH : LOCK_EX;
+            if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
+                return Abort;
+        #endif
         if (tryOnce)
         {
             if (!ATOM_CAS(ltv.atomicLock, 0, 1))
@@ -432,8 +435,11 @@ public:
         {
             while (!ATOM_CAS(ltv.atomicLock, 0, 1))
             {
-                if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
-                    return Abort;
+                #if CC_ALG != HEKATON
+                    lock_t lt = (type == RD || type == SCAN) ? LOCK_SH : LOCK_EX;
+                    if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
+                        return Abort;
+                #endif
                 PAUSE
             }
         }

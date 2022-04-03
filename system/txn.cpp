@@ -9,7 +9,6 @@
 #include "catalog.h"
 #include "index_btree.h"
 #include "index_hash.h"
-
 #include "log.h"
 #include "log_alg_list.h"
 #include "log_recover_table.h"
@@ -22,6 +21,7 @@
 #include <inttypes.h>
 #include <sstream>
 #include "numa.h"
+
 #if LOG_ALGORITHM == LOG_BATCH
 pthread_mutex_t * txn_man::_log_lock;
 #endif
@@ -76,27 +76,88 @@ void txn_man::init(thread_t * h_thd, workload * h_wl, uint64_t thd_id) {
 	row_cnt = 0;
 	wr_cnt = 0;
 	insert_cnt = 0;
-	accesses = (Access **) _mm_malloc(sizeof(Access *) * MAX_ROW_PER_TXN, 64);
-	for (int i = 0; i < MAX_ROW_PER_TXN; i++)
+#if WORKLOAD == YCSB
+	accesses = (Access **) MALLOC(sizeof(Access *) * g_req_per_query, GET_THD_ID);
+	write_set = (uint32_t *) MALLOC(sizeof(uint32_t) * g_req_per_query, GET_THD_ID);
+	for (uint32_t i = 0; i < g_req_per_query; i++)
 		accesses[i] = NULL;
+#elif WORKLOAD == TPCC
+	accesses = (Access **) MALLOC(sizeof(Access *) * MAX_ROW_PER_TXN, GET_THD_ID);
+	write_set = (uint32_t *) MALLOC(sizeof(uint32_t) * MAX_ROW_PER_TXN, GET_THD_ID);
+	for (uint32_t i = 0; i < MAX_ROW_PER_TXN; i++)
+		accesses[i] = NULL;
+#else
+	assert(false); // not implemented
+#endif
 	num_accesses_alloc = 0;
 #if CC_ALG == TICTOC || CC_ALG == SILO
-	_pre_abort = (g_params["pre_abort"] == "true");
-	if (g_params["validation_lock"] == "no-wait")
-		_validation_no_wait = true;
-	else if (g_params["validation_lock"] == "waiting")
-		_validation_no_wait = false;
-	else 
-		assert(false);
+	_pre_abort = g_pre_abort; 
+	_validation_no_wait = true;
 #endif
 #if CC_ALG == TICTOC
 	_max_wts = 0;
-	_write_copy_ptr = (g_params["write_copy_form"] == "ptr");
-	_atomic_timestamp = (g_params["atomic_timestamp"] == "true");
-#elif CC_ALG == SILO
+	_min_cts = 0;
+	_write_copy_ptr = false; //(g_write_copy_form == "ptr");
+	_atomic_timestamp = g_atomic_timestamp;
+#elif CC_ALG == SILO || LOG_ALGORITHM == LOG_SERIAL
 	_cur_tid = 0;
 #endif
+	_last_epoch_time = 0;
 
+#if LOG_ALGORITHM == LOG_PARALLEL
+	_num_raw_preds = 0;
+	_num_waw_preds = 0;
+//	_predecessor_info = new PredecessorInfo;	
+//	for (uint32_t i = 0; i < 4; i++)
+//		aggregate_pred_vector[i] = 0;
+#elif LOG_ALGORITHM == LOG_TAURUS
+	thread_local_counter = 0; // local counter
+	partition_accesses_cnt = (uint64_t *) MALLOC(sizeof(uint64_t)*g_num_logger, GET_THD_ID);
+	memset(partition_accesses_cnt, 0, sizeof(uint64_t) * g_num_logger);
+
+	#if UPDATE_SIMD && MAX_LOGGER_NUM_SIMD==16 // we allocate a fixed size LSN
+	//if(g_num_logger < MAX_LOGGER_NUM_SIMD)
+	{
+		// for SIMD
+		lsn_vector = (lsnType*) MALLOC(sizeof(lsnType) * MAX_LOGGER_NUM_SIMD, GET_THD_ID);
+		memset(lsn_vector, 0, sizeof(lsnType) * MAX_LOGGER_NUM_SIMD); // initialize to 0
+	}
+	#else
+	{
+		lsn_vector = (lsnType*) MALLOC(sizeof(lsnType) * g_num_logger, GET_THD_ID);
+		memset(lsn_vector, 0, sizeof(lsnType) * g_num_logger); // initialize to 0
+	}	
+	#endif
+#endif
+#if LOG_ALGORITHM == LOG_PLOVER
+	_log_entry_sizes = (uint32_t *)MALLOC(sizeof(uint32_t) * g_num_logger, GET_THD_ID);
+	memset(_log_entry_sizes, 0, sizeof(uint32_t) * g_num_logger);
+	_log_entries = (char **) MALLOC(sizeof(char*) * g_num_logger, GET_THD_ID);
+	for(uint32_t i=0; i<g_num_logger; i++)
+	{
+		_log_entries[i] = (char*) numa_alloc_onnode(g_max_log_entry_size, (GET_THD_ID % g_num_logger) % NUMA_NODE_NUM);
+		//_log_entries[i] = (char*) MALLOC(g_max_log_entry_size, GET_THD_ID);
+	}
+	_targets = (uint64_t*) MALLOC(sizeof(uint64_t) * g_num_logger, GET_THD_ID);
+	// we initialize targets everytime we access it.
+	//memset(targets, 0, sizeof(uint32_t) * g_num_logger);
+#else
+	//_log_entry = new char [g_max_log_entry_size];
+	_log_entry = (char*) numa_alloc_onnode(g_max_log_entry_size, (GET_THD_ID % g_num_logger + 1) % NUMA_NODE_NUM);
+	_log_entry_size = 0;
+	
+#endif
+	
+	_txn_state_queue = new queue<TxnState>;
+#if LOG_ALGORITHM == LOG_TAURUS
+	if (g_log_recover) return; // no need for queue_lsn_buffer.
+	// create a LSN buffer according to the log buffer size
+	
+	queue_lsn_vec_buffer = (lsnType*) MALLOC(g_queue_buffer_length, GET_THD_ID);
+	queue_lsn_vec_buffer_length = g_queue_buffer_length / g_num_logger / sizeof(lsnType);
+	queue_lsn_vec_counter = 0;
+#endif
+	
 }
 
 void txn_man::set_txn_id(txnid_t txn_id) {
@@ -123,18 +184,181 @@ ts_t txn_man::get_ts() {
 	return this->timestamp;
 }
 
-void txn_man::cleanup(RC rc) {
-#if CC_ALG == HEKATON
-	row_cnt = 0;
-	wr_cnt = 0;
-	insert_cnt = 0;
-	return;
+RC txn_man::cleanup(RC in_rc) 
+{
+	RC rc = in_rc;
+#if LOG_ALGORITHM == LOG_TAURUS && CC_ALG != SILO // already logged in silo_validate
+	// Start logging
+	// uint64_t & max_lsn = _max_lsn;
+	if(wr_cnt>0 && rc!=Abort)
+	{
+		uint64_t current_time = get_sys_clock();
+		create_log_entry();
+		uint64_t current_time2 = get_sys_clock();
+
+#if VERBOSE_LEVEL & VERBOSE_TXNLV > 0
+		stringstream s;
+		s << GET_THD_ID << " txn at flushing to buffer: " << " (";
+		for(uint32_t kk = 0; kk < g_num_logger; kk++)
+		{
+			s << lsn_vector[kk] << ", ";
+			//assert(lsn_vector[kk] == 0);
+		}
+		s << ")" << endl; // << endl;
+		cout << s.str();
+		
+		for(uint32_t kk = 0; kk < g_num_logger; kk++)
+		{
+			//s << lsn_vector[kk] << ", ";
+			//assert(lsn_vector[kk] == 0);
+			if(lsn_vector[kk] > 0)
+				INC_INT_STATS(int_nonzero, 1);
+		}
 #endif
+#if PARTITION_AWARE
+		uint64_t partition_max_access = 0;
+		uint64_t max_access_count = 0;
+		target_logger_id = 0; // GET_THD_ID % g_num_logger;
+		for(uint32_t i=0; i<g_num_logger; i++)
+			if(partition_accesses_cnt[i] > partition_max_access)
+			{
+				partition_max_access = partition_accesses_cnt[i];
+				//target_logger_id = i;
+				max_access_count = 1;
+			}
+			else if(partition_accesses_cnt[i] == partition_max_access)
+			{
+				max_access_count ++;
+			}
+		// among all the ties, choose by random
+		uint64_t target_id = GET_THD_ID % max_access_count;
+		for(uint32_t i=0; i<g_num_logger; i++)
+			if(partition_accesses_cnt[i] == partition_max_access)
+			{
+				if(target_id==0)
+				{
+					target_logger_id = i;
+					break;
+				}
+				target_id--;
+			}
+		log_manager->serialLogTxn(_log_entry, _log_entry_size, lsn_vector, target_logger_id);  // add to buffer
+#else
+		log_manager->serialLogTxn(_log_entry, _log_entry_size, lsn_vector, GET_THD_ID % g_num_logger);  // add to buffer
+#endif
+		INC_INT_STATS(time_log_serialLogTxn, get_sys_clock() - current_time2);
+		INC_INT_STATS(time_log_create, current_time2 - current_time);
+	}
+#elif LOG_ALGORITHM == LOG_SERIAL && CC_ALG != SILO // Silo updates _cur_tid inside the cc algorithm
+	if(wr_cnt > 0 && rc == RCOK)
+	{
+		uint64_t current_time = get_sys_clock();
+		create_log_entry();
+		uint64_t current_time2 = get_sys_clock();
+		_cur_tid = log_manager->serialLogTxn(_log_entry, _log_entry_size);
+		INC_INT_STATS(time_log_serialLogTxn, get_sys_clock() - current_time2);
+		INC_INT_STATS(time_log_create, current_time2 - current_time);
+	}
+#elif LOG_ALGORITHM == LOG_PLOVER
+	uint64_t gsn = 0;
+	if(wr_cnt > 0 && rc == RCOK)
+	{
+		uint64_t current_time = get_sys_clock();
+		create_log_entry();
+		uint64_t current_time2 = get_sys_clock();
+		
+		// targets are set in create_log_entry
+		//memset(targets, 0, sizeof(uint64_t) * g_num_logger);
+		
+		uint32_t log_id;
+		for (log_id = 0; log_id < g_num_logger; log_id ++)
+		{
+			if(_targets[log_id])
+			{
+				uint64_t * ptr_lgsn = log_manager->lgsn[log_id];
+				uint64_t local_lgsn = *ptr_lgsn;
+#if PLOVER_NO_WAIT
+				if(local_lgsn & LOCK_BIT)
+				{
+					rc = Abort;
+					break;
+				}
+				while(!ATOM_CAS(*ptr_lgsn, local_lgsn, local_lgsn | LOCK_BIT))
+				{
+					PAUSE;
+					local_lgsn = *ptr_lgsn;
+					if(local_lgsn & LOCK_BIT)
+					{
+						rc = Abort;
+						break;
+					}
+				}
+				if(rc==Abort) break;
+#else
+				// wait for the lock
+				while((local_lgsn & LOCK_BIT)!=0 || !ATOM_CAS(*ptr_lgsn, local_lgsn, local_lgsn | LOCK_BIT))
+				{
+					PAUSE;
+					local_lgsn = *ptr_lgsn;
+				}
+#endif
+				// already have the latch
+				uint64_t t_lgsn = local_lgsn & (~LOCK_BIT);
+				if(t_lgsn > gsn) gsn = t_lgsn;
+			}
+		}
+
+		if(rc==RCOK)
+		{
+			gsn++; // gsn = max{lgsn} + 1
+			bool first_log_record = true; // easier for recovery worker to count transactions
+			for(uint32_t i=0; i<g_num_logger; i++)
+				if(_targets[i])
+				{
+					assert(*log_manager->lgsn[i] & LOCK_BIT);
+					if(UNLIKELY(first_log_record))
+					{
+						first_log_record = false;
+						log_manager->serialLogTxn(_log_entries[i], _log_entry_sizes[i], gsn|LOCK_BIT, i);
+						INC_INT_STATS(num_log_records, 1);
+					}
+					else
+					{
+						log_manager->serialLogTxn(_log_entries[i], _log_entry_sizes[i], gsn, i);
+					}
+				}
+			INC_INT_STATS(time_log_serialLogTxn, get_sys_clock() - current_time2);
+			INC_INT_STATS(time_log_create, current_time2 - current_time);
+			// update and release the latches
+			for (int l2 = g_num_logger-1; l2 >= 0; l2 --)
+				if(_targets[l2])
+				{
+					uint64_t * ptr_lgsn = log_manager->lgsn[l2];
+					*ptr_lgsn = gsn;
+				}
+		}
+		else
+		{
+			// release only
+			for (int l2 = log_id - 1; l2 >= 0; l2 --)
+				if(_targets[l2])
+				{
+					uint64_t * ptr_lgsn = log_manager->lgsn[l2];
+					assert(*ptr_lgsn & LOCK_BIT); // already locked
+					*ptr_lgsn = *ptr_lgsn & (~LOCK_BIT);
+				}
+			
+		}
+	}
+#endif
+	uint64_t starttime = get_sys_clock();
+	// start to release the locks
+#if CC_ALG != SILO // updating the data is already handled in silo_validate
 	for (int rid = row_cnt - 1; rid >= 0; rid --) {
 		row_t * orig_r = accesses[rid]->orig_row;
 		access_t type = accesses[rid]->type;
 		if (type == WR && rc == Abort)
-			type = XP;
+			type = XP;  // means we need to roll back the data value
 
 #if (CC_ALG == NO_WAIT || CC_ALG == DL_DETECT) && ISOLATION_LEVEL == REPEATABLE_READ
 		if (type == RD) {
@@ -143,21 +367,45 @@ void txn_man::cleanup(RC rc) {
 		}
 #endif
 
+		char *newdata;
 		if (ROLL_BACK && type == XP &&
 					(CC_ALG == DL_DETECT || 
 					CC_ALG == NO_WAIT || 
 					CC_ALG == WAIT_DIE)) 
 		{
-			orig_r->return_row(type, this, accesses[rid]->orig_data);
+			newdata = ((row_t*)accesses[rid]->orig_data)->data;  // fixed a bug left from the original code base
 		} else {
-			orig_r->return_row(type, this, accesses[rid]->data);
+			newdata = accesses[rid]->data;
 		}
+#if USE_LOCKTABLE 
+		LockTable & lt = LockTable::getInstance();
+		uint64_t current_time = get_sys_clock();
+		//assert((uint64_t)newdata != 0);
+		#if LOG_ALGORITHM == LOG_TAURUS
+		lt.release_lock(orig_r, type, this, newdata, lsn_vector, NULL, rc);
+		#elif LOG_ALGORITHM == LOG_SERIAL
+		lt.release_lock(orig_r, type, this, newdata, NULL, &_max_lsn, rc);
+		#else
+		lt.release_lock(orig_r, type, this, newdata, NULL, NULL, rc);
+		#endif
+		INC_INT_STATS(time_locktable_release, get_sys_clock() - current_time);
+#else
+		orig_r->return_row(type, this, newdata, rc);
+#endif
 #if CC_ALG != TICTOC && CC_ALG != SILO
-		accesses[rid]->data = NULL;
+		accesses[rid]->data = NULL;  // will not need this any more
 #endif
 	}
+#if VERBOSE_LEVEL > 0
+    stringstream ssk;
+    ssk << GET_THD_ID << " finishes" << endl << endl;
+    cout << ssk.str();
+#endif
 
-	if (rc == Abort) {
+#endif
+	uint64_t cleanup_1_begin = get_sys_clock();
+	INC_INT_STATS(time_phase1_1, cleanup_1_begin - starttime);
+	if (rc == Abort) { // remove inserted rows.
 		for (UInt32 i = 0; i < insert_cnt; i ++) {
 			row_t * row = insert_rows[i];
 			assert(g_part_alloc == false);
@@ -168,13 +416,295 @@ void txn_man::cleanup(RC rc) {
 			mem_allocator.free(row, sizeof(row));
 		}
 	}
+	uint64_t cleanup_1_end = get_sys_clock();
+	INC_INT_STATS(time_cleanup_1, cleanup_1_end - cleanup_1_begin);
+	// Logging
+	//printf("log??\n");
+#if LOG_ALGORITHM != LOG_NO
+	if (rc == RCOK && wr_cnt > 0)
+	{
+//		if (wr_cnt > 0) {
+	    {
+			uint64_t before_log_time = get_sys_clock();
+			//uint32_t size = _log_entry_size;
+  #if LOG_ALGORITHM == LOG_TAURUS
+  			assert(_log_entry_size != 0);
+			// for waiting for txn to flush and not spinning around
+			queue<TxnState> * state_queue = _txn_state_queue; //[GET_THD_ID];
+			TxnState state;
+			++ queue_lsn_vec_counter;
+			if(queue_lsn_vec_counter == queue_lsn_vec_buffer_length) queue_lsn_vec_counter = 0;
+			state.lsn_vec = queue_lsn_vec_buffer + g_num_logger * queue_lsn_vec_counter;
+			//state.lsn_vec = (uint64_t*) MALLOC( sizeof(uint64_t) * g_num_logger, GET_THD_ID);
+			//COMPILER_BARRIER
+			//INC_INT_STATS(time_state_malloc, get_sys_clock() - before_log_time);
+
+			memcpy(state.lsn_vec, lsn_vector, sizeof(lsnType) * g_num_logger);
+			
+			//printf("!");
+			
+			//state.destination = thread_local_counter++ % g_thread_cnt;
+			state.start_time = _txn_start_time;
+			state.wait_start_time = get_sys_clock();
+			
+			state_queue->push(state);
+			//log_manager[state.destination]->logTxn
+  #elif LOG_ALGORITHM == LOG_PLOVER
+			// plover does not need async commit if we relax the min_pgsn requirement
+			queue<TxnState> * state_queue = _txn_state_queue;
+			TxnState state;
+			state.gsn = gsn;
+			state.start_time = _txn_start_time;
+			state.wait_start_time = get_sys_clock();
+			state_queue->push(state);
+  #elif LOG_ALGORITHM == LOG_SERIAL
+			//	_max_lsn: max LSN for predecessors
+			//  _cur_tid: LSN for the log record of the current txn 
+  			uint64_t max_lsn = max(_max_lsn, _cur_tid); // for serial logging, we only need a single one
+			
+				queue<TxnState> * state_queue = _txn_state_queue; //[GET_THD_ID];
+				TxnState state;
+				state.max_lsn = max_lsn;
+				state.start_time = _txn_start_time;
+				state.wait_start_time = get_sys_clock();
+				state_queue->push(state);
+			//}
+  #elif LOG_ALGORITHM == LOG_PARALLEL
+			bool success = true;
+			// check own log record  
+			uint32_t logger_id = _cur_tid >> 48;
+			uint64_t lsn = (_cur_tid << 16) >> 16;
+			if (lsn > log_manager[logger_id]->get_persistent_lsn())
+				success = false;
+			if (success) {
+				for (uint32_t i=0; i < _num_raw_preds; i++)  {
+					if (_raw_preds_tid[i] == (uint64_t)-1) continue;
+					logger_id = _raw_preds_tid[i] >> 48;
+					lsn = (_raw_preds_tid[i] << 16) >> 16;
+					if (lsn > log_manager[logger_id]->get_persistent_lsn()) { 
+						success = false;
+						break;
+					}
+				} 
+			}
+			if (success) {
+				for (uint32_t i=0; i < _num_waw_preds; i++)  {
+					if (_waw_preds_tid[i] == (uint64_t)-1) continue;
+					logger_id = _waw_preds_tid[i] >> 48;
+					lsn = (_waw_preds_tid[i] << 16) >> 16;
+					if (lsn > log_manager[logger_id]->get_persistent_lsn()) { 
+						success = false;
+						break;
+					}
+				} 		
+			}
+			if (success) { 
+				INC_INT_STATS_V0(num_latency_count, 1);
+				INC_FLOAT_STATS_V0(latency, get_sys_clock() - _txn_start_time);
+			} else {
+				queue<TxnState> * state_queue = _txn_state_queue; // [GET_THD_ID];
+				TxnState state;
+				for (uint32_t i = 0; i < g_num_logger; i ++)
+					state.preds[i] = 0;
+				// calculate the compressed preds
+				uint32_t logger_id = _cur_tid >> 48;
+				uint64_t lsn = (_cur_tid << 16) >> 16;
+				if (lsn > state.preds[logger_id])
+					state.preds[logger_id] = lsn;
+				for (uint32_t i=0; i < _num_raw_preds; i++)  {
+					if (_raw_preds_tid[i] == (uint64_t)-1) continue;
+					logger_id = _raw_preds_tid[i] >> 48;
+					lsn = (_raw_preds_tid[i] << 16) >> 16;
+					if (lsn > state.preds[logger_id])
+						state.preds[logger_id] = lsn;
+				} 
+				for (uint32_t i=0; i < _num_waw_preds; i++)  {
+					if (_waw_preds_tid[i] == (uint64_t)-1) continue;
+					logger_id = _waw_preds_tid[i] >> 48;
+					lsn = (_waw_preds_tid[i] << 16) >> 16;
+					if (lsn > state.preds[logger_id])
+						state.preds[logger_id] = lsn;
+				} 
+				state.start_time = _txn_start_time;
+				//memcpy(state.preds, _preds, sizeof(uint64_t) * g_num_logger);
+				state.wait_start_time = get_sys_clock();
+				state_queue->push(state);
+			}
+  #elif LOG_ALGORITHM == LOG_BATCH
+  			uint64_t flushed_epoch = (uint64_t)-1;
+
+			for (uint32_t i = 0; i < g_num_logger; i ++) {
+				uint64_t max_epoch = glob_manager->get_persistent_epoch(i);
+				if (max_epoch < flushed_epoch)
+					flushed_epoch = max_epoch; 
+			}
+			//printf("flushed_epoch= %ld\n", flushed_epoch);
+			if (_epoch <= flushed_epoch) {
+				INC_INT_STATS_V0(num_latency_count, 1);
+				INC_FLOAT_STATS_V0(latency, get_sys_clock() - _txn_start_time);
+			} else {
+				queue<TxnState> * state_queue = _txn_state_queue; //[GET_THD_ID];
+				TxnState state;
+				state.epoch = _epoch;
+				state.start_time = _txn_start_time;
+				state.wait_start_time = get_sys_clock();
+				state_queue->push(state);
+			}
+  #endif
+			uint64_t after_log_time = get_sys_clock();
+			INC_INT_STATS(time_log, after_log_time - before_log_time);
+		}	
+	}
+	uint64_t cleanup2_begin = get_sys_clock();
+	INC_INT_STATS(time_phase1_2, cleanup2_begin - cleanup_1_end);
+	try_commit_txn();  // no need to try_commit_txn if abort
+#else // LOG_ALGORITHM == LOG_NO
+	uint64_t cleanup2_begin = get_sys_clock();
+	INC_INT_STATS_V0(num_latency_count, 1);
+	INC_FLOAT_STATS_V0(latency, get_sys_clock() - _txn_start_time);
+#endif
+
+#if LOG_ALGORITHM == LOG_PLOVER
+	memset(_log_entry_sizes, 0, sizeof(uint32_t) * g_num_logger);
+#else
+	_log_entry_size = 0;
+#endif
 	row_cnt = 0;
 	wr_cnt = 0;
 	insert_cnt = 0;
+#if LOG_ALGORITHM == LOG_PARALLEL
+	_num_raw_preds = 0;
+	_num_waw_preds = 0;
+#elif LOG_ALGORITHM == LOG_SERIAL
+	_max_lsn = 0;
+#elif LOG_ALGORITHM == LOG_TAURUS
+	_max_lsn = 0;
+	memset(partition_accesses_cnt, 0, sizeof(uint64_t) * g_num_logger);
+	memset(lsn_vector, 0, sizeof(lsnType) * g_num_logger);
+#endif
 #if CC_ALG == DL_DETECT
 	dl_detector.clear_dep(get_txn_id());
 #endif
+	INC_INT_STATS(time_cleanup_2, get_sys_clock() - cleanup2_begin);
+	//printf("Txn cleaned\n");
+	return rc;
 }
+
+void 			
+txn_man::try_commit_txn()
+{
+	uint64_t starttime = get_sys_clock();
+#if LOG_ALGORITHM == LOG_SERIAL
+	bool success = true;
+	queue<TxnState> * state_queue = _txn_state_queue; // [GET_THD_ID];
+	while (!state_queue->empty() && success) 
+	{
+		TxnState state = state_queue->front();
+		if (state.max_lsn > log_manager->get_persistent_lsn()) { 
+			success = false;
+			break;
+		}
+		if (success) {
+			uint64_t lat = get_sys_clock() - state.start_time;
+			INC_FLOAT_STATS_V0(latency, lat);
+			INC_INT_STATS_V0(num_latency_count, 1);
+			INC_INT_STATS(num_async_commits, 1);
+			state_queue->pop();
+		}
+	}
+#elif LOG_ALGORITHM == LOG_TAURUS
+	bool success = true;
+	queue<TxnState> * state_queue = _txn_state_queue; //[GET_THD_ID];
+	//if(state_queue->size() > 1000)
+	//	printf("[%" PRIu64 "] tries to commit txn, now queue length: %" PRIu64 "\n", GET_THD_ID, state_queue->size());
+	while (!state_queue->empty() && success) 
+	{
+		TxnState state = state_queue->front();
+		// TODO: we can have N fronts in parallel so that one does not have to wait
+		
+		for(uint32_t i=0; i<g_num_logger; i++)
+		{
+			if(state.lsn_vec[i] > log_manager->_logger[i]->get_persistent_lsn())
+			{
+				success = false;
+				break;
+			}
+		}
+		if (success) {
+			uint64_t lat = get_sys_clock() - state.start_time;
+			INC_FLOAT_STATS_V0(latency, lat);
+			INC_INT_STATS_V0(num_latency_count, 1);
+			INC_INT_STATS(num_async_commits, 1);
+			//_mm_free(state.lsn_vec);
+			state_queue->pop();
+		}
+	}
+#elif LOG_ALGORITHM == LOG_PLOVER
+	bool success = true;
+	queue<TxnState> * state_queue = _txn_state_queue; //[GET_THD_ID];
+	while(!state_queue->empty() && success)
+	{
+		TxnState state = state_queue->front();
+		for (uint32_t i=0; i < g_num_logger; i++)  {
+			if(state.gsn > log_manager->pgsn[i][0])
+			{
+				success = false;
+				break;
+			}
+		}
+		if (success) {
+			INC_INT_STATS_V0(num_latency_count, 1);
+			INC_FLOAT_STATS_V0(latency, get_sys_clock() - state.start_time);
+			INC_INT_STATS(num_async_commits, 1);
+			state_queue->pop();
+		}
+	}
+#elif LOG_ALGORITHM == LOG_PARALLEL
+	bool success = true;
+	queue<TxnState> * state_queue = _txn_state_queue; //[GET_THD_ID];
+	while (!state_queue->empty() && success) 
+	{
+		TxnState state = state_queue->front();
+		for (uint32_t i=0; i < g_num_logger; i++)  {
+			if (state.preds[i] > log_manager[i]->get_persistent_lsn()) { 
+				success = false;
+				break;
+			}
+		}
+		if (success) {
+			INC_INT_STATS_V0(num_latency_count, 1);
+			INC_FLOAT_STATS_V0(latency, get_sys_clock() - state.start_time);
+			INC_INT_STATS(num_async_commits, 1);
+			state_queue->pop();
+		}
+	}
+#elif LOG_ALGORITHM == LOG_BATCH
+  	uint64_t flushed_epoch = (uint64_t)-1;
+	for (uint32_t i = 0; i < g_num_logger; i ++) {
+		uint64_t max_epoch = glob_manager->get_persistent_epoch(i);
+		if (max_epoch < flushed_epoch)
+			flushed_epoch = max_epoch; 
+	}
+	bool success = true;
+	queue<TxnState> * state_queue = _txn_state_queue; //[GET_THD_ID];
+	while (!state_queue->empty() && success) 
+	{
+		TxnState state = state_queue->front();
+		if (state.epoch > flushed_epoch) { 
+			success = false;
+			break;
+		}
+		if (success) {
+			INC_INT_STATS_V0(num_latency_count, 1);
+			INC_FLOAT_STATS_V0(latency, get_sys_clock() - state.start_time);
+			INC_INT_STATS(num_async_commits, 1);
+			state_queue->pop();
+		}
+	}
+#endif
+	INC_INT_STATS(time_debug5, get_sys_clock() - starttime);
+}
+
 
 RC txn_man::get_row(row_t * row, access_t type, char * &data) { //TODO: change this function so that it aquires the Locktable
 	// NOTE. 
@@ -280,64 +810,6 @@ RC txn_man::get_row(row_t * row, access_t type, char * &data) { //TODO: change t
 	return RCOK;
 }
 
-row_t * txn_man::get_row(row_t * row, access_t type) {
-	if (CC_ALG == HSTORE)
-		return row;
-	uint64_t starttime = get_sys_clock();
-	RC rc = RCOK;
-	if (accesses[row_cnt] == NULL) {
-		Access * access = (Access *) _mm_malloc(sizeof(Access), 64);
-		accesses[row_cnt] = access;
-#if (CC_ALG == SILO || CC_ALG == TICTOC)
-		access->data = (row_t *) _mm_malloc(sizeof(row_t), 64);
-		access->data->init(MAX_TUPLE_SIZE);
-		access->orig_data = (row_t *) _mm_malloc(sizeof(row_t), 64);
-		access->orig_data->init(MAX_TUPLE_SIZE);
-#elif (CC_ALG == DL_DETECT || CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE)
-		access->orig_data = (row_t *) _mm_malloc(sizeof(row_t), 64);
-		access->orig_data->init(MAX_TUPLE_SIZE);
-#endif
-		num_accesses_alloc ++;
-	}
-	
-	rc = row->get_row(type, this, accesses[ row_cnt ]->data);
-
-
-	if (rc == Abort) {
-		return NULL;
-	}
-	accesses[row_cnt]->type = type;
-	accesses[row_cnt]->orig_row = row;
-#if CC_ALG == TICTOC
-	accesses[row_cnt]->wts = last_wts;
-	accesses[row_cnt]->rts = last_rts;
-#elif CC_ALG == SILO
-	accesses[row_cnt]->tid = last_tid;
-#elif CC_ALG == HEKATON
-	accesses[row_cnt]->history_entry = history_entry;
-#endif
-
-#if ROLL_BACK && (CC_ALG == DL_DETECT || CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE)
-	if (type == WR) {
-		accesses[row_cnt]->orig_data->table = row->get_table();
-		accesses[row_cnt]->orig_data->copy(row);
-	}
-#endif
-
-#if (CC_ALG == NO_WAIT || CC_ALG == DL_DETECT) && ISOLATION_LEVEL == REPEATABLE_READ
-	if (type == RD)
-		row->return_row(type, this, accesses[ row_cnt ]->data);
-#endif
-	
-	row_cnt ++;
-	if (type == WR)
-		wr_cnt ++;
-
-	uint64_t timespan = get_sys_clock() - starttime;
-	INC_TMP_STATS(get_thd_id(), time_man, timespan);
-	return accesses[row_cnt - 1]->data;
-}
-
 void txn_man::insert_row(row_t * row, table_t * table) {
 	if (CC_ALG == HSTORE)
 		return;
@@ -347,10 +819,10 @@ void txn_man::insert_row(row_t * row, table_t * table) {
 
 itemid_t *
 txn_man::index_read(INDEX * index, idx_key_t key, int part_id) {
+itemid_t * item;
 	uint64_t starttime = get_sys_clock();
-	itemid_t * item;
 	index->index_read(key, item, part_id, get_thd_id());
-	INC_TMP_STATS(get_thd_id(), time_index, get_sys_clock() - starttime);
+	INC_INT_STATS(time_index, get_sys_clock() - starttime);
 	return item;
 }
 
@@ -358,10 +830,11 @@ void
 txn_man::index_read(INDEX * index, idx_key_t key, int part_id, itemid_t *& item) {
 	uint64_t starttime = get_sys_clock();
 	index->index_read(key, item, part_id, get_thd_id());
-	INC_TMP_STATS(get_thd_id(), time_index, get_sys_clock() - starttime);
+	INC_INT_STATS(time_index, get_sys_clock() - starttime);
 }
 
 RC txn_man::finish(RC rc) {
+	assert(!g_log_recover);
 #if CC_ALG == HSTORE
 	return RCOK;
 #endif
@@ -372,31 +845,46 @@ RC txn_man::finish(RC rc) {
 	else 
 		cleanup(rc);
 #elif CC_ALG == TICTOC
-	if (rc == RCOK)
+	if (rc == RCOK) {
 		rc = validate_tictoc();
-	else 
-		cleanup(rc);
+	} else  {
+		rc = cleanup(rc);
+	}
 #elif CC_ALG == SILO
 	if (rc == RCOK)
+	{
+	#if LOG_ALGORITHM == LOG_SERIAL
+		rc = validate_silo_serial();
+	#else
 		rc = validate_silo();
-	else 
+	#endif
+	}
+	else
+	{ 
 		cleanup(rc);
+	}
 #elif CC_ALG == HEKATON
 	rc = validate_hekaton(rc);
 	cleanup(rc);
-#else 
-	cleanup(rc);
+#else // lock-based
+	rc = cleanup(rc);  // PLOVER could abort a transaction during cleanup
 #endif
 	uint64_t timespan = get_sys_clock() - starttime;
-	INC_TMP_STATS(get_thd_id(), time_man,  timespan);
-	INC_STATS(get_thd_id(), time_cleanup,  timespan);
+	INC_INT_STATS(time_man, timespan);
+	INC_INT_STATS(time_cleanup,  timespan);
 	return rc;
 }
 
 void
 txn_man::release() {
-	for (int i = 0; i < num_accesses_alloc; i++)
+	for (uint32_t i = 0; i < num_accesses_alloc; i++)
+	{
+#if ROLL_BACK && (CC_ALG == DL_DETECT || CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE)
+		FREE(((row_t*)accesses[i]->orig_data)->data, sizeof(char) * ((row_t*)accesses[i]->orig_data)->get_tuple_size());
+		FREE(accesses[i]->orig_data, sizeof(row_t));
+#endif // otherwise orig_data is NULL
 		mem_allocator.free(accesses[i], 0);
+	}
 	mem_allocator.free(accesses, 0);
 }
 

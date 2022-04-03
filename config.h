@@ -110,6 +110,7 @@
 #define VALIDATION_LOCK				"no-wait" // no-wait or waiting
 #define PRE_ABORT					"true"
 #define ATOMIC_WORD					true
+#define EPOCH_PERIOD				5 // ms
 // [HSTORE]
 // when set to true, hstore will not access the global timestamp.
 // This is fine for single partition transactions. 
@@ -123,7 +124,7 @@
 #define LOG_REDO					false
 #define LOG_BATCH_TIME				10 // in ms
 
-#define LOG_ALGORITHM               LOG_PLOVER // LOG_TAURUS
+#define LOG_ALGORITHM               LOG_BATCH // LOG_TAURUS
 #define LOG_TYPE                    LOG_DATA
 #define LOG_RAM_DISK				false
 #define LOG_NO_FLUSH			 	false

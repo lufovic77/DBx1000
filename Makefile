@@ -6,7 +6,7 @@ CFLAGS=-Wall -g -std=c++0x
 SRC_DIRS = ./ ./benchmarks/ ./concurrency_control/ ./storage/ ./system/
 INCLUDE = -I. -I./benchmarks -I./concurrency_control -I./storage -I./system
 
-CFLAGS += $(INCLUDE)  -lrt -lpthread -msse4.2 -march=native -ffast-math  -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -Werror -O3
+CFLAGS += $(INCLUDE)  -lrt -lpthread -msse4.2 -march=native -ffast-math  -O3 -D_GNU_SOURCE -fopenmp -D NOGRAPHITE=1 -O3
 
 
 LDFLAGS = -Wall -L. -L./libs -pthread -g -lrt -std=c++0x -O3 -lnuma

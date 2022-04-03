@@ -603,7 +603,7 @@ RC LoggingThread::run()
 		rlv = UINT64_MAX;
 #if RECOVERY_FULL_THR
 		while (!glob_manager->_workload->sim_done)
-#else
+#else if
 		while (!(workerDone[0] == num_worker))
 #endif
 		{

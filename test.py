@@ -13,15 +13,32 @@ def replace(filename, pattern, replacement):
 
 jobs = {}
 dbms_cfg = ["config-std.h", "config.h"]
-algs = ['DL_DETECT', 'NO_WAIT', 'HEKATON', 'SILO', 'TICTOC']
+algs = ['DL_DETECT', 'NO_WAIT', 'SILO', 'TICTOC', 'OCC']
 def insert_job(alg, workload):
 	jobs[alg + '_' + workload] = {
 		"WORKLOAD"			: workload,
 		"CORE_CNT"			: 4,
 		"CC_ALG"			: alg,
 	}
-
-
+'''
+#if CC_ALG == DL_DETECT || CC_ALG == NO_WAIT || CC_ALG == WAIT_DIE
+    Row_lock * manager;
+  #elif CC_ALG == TIMESTAMP
+   	Row_ts * manager;
+  #elif CC_ALG == MVCC
+  	Row_mvcc * manager;
+  #elif CC_ALG == HEKATON
+  	Row_hekaton * manager;
+  #elif CC_ALG == OCC
+  	Row_occ * manager;
+  #elif CC_ALG == TICTOC
+  	Row_tictoc * manager;
+  #elif CC_ALG == SILO
+  	Row_silo * manager;
+  #elif CC_ALG == VLL
+  	Row_vll * manager;
+  #endif
+'''
 def test_compile(job):
 	os.system("cp "+ dbms_cfg[0] +' ' + dbms_cfg[1])
 	for (param, value) in job.iteritems():

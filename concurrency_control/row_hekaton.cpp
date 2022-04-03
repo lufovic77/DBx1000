@@ -147,7 +147,7 @@ Row_hekaton::reserveRow(txn_man * txn)
 }
 
 RC 
-Row_hekaton::prepare_read(txn_man * txn, row_t * row, ts_t commit_ts)
+Row_hekaton::prepare_read(txn_man * txn, char * row, ts_t commit_ts)
 {
 	RC rc;
 	while (!ATOM_CAS(blatch, false, true))
@@ -155,7 +155,7 @@ Row_hekaton::prepare_read(txn_man * txn, row_t * row, ts_t commit_ts)
 	// TODO may pass in a pointer to the history entry to reduce the following scan overhead.
 	uint32_t idx = _his_latest;
 	while (true) {
-		if (_write_history[idx].row == row) {
+		if (_write_history[idx].row == (row_t*) row) {
 			if (txn->get_ts() < _write_history[idx].begin) {
 				rc = Abort;
 			} else if (!_write_history[idx].end_txn && _write_history[idx].end > commit_ts) 

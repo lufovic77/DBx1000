@@ -21,8 +21,8 @@ class Access {
 public:
 	access_t 	type;
 	row_t * 	orig_row;
-	row_t * 	data;
-	row_t * 	orig_data;
+	char * 	data;
+	char * 	orig_data;
 
 
 	void cleanup();
@@ -70,12 +70,13 @@ public:
 	// [HSTORE]
 	int volatile 	ready_part;
 	RC 				finish(RC rc);
-	void 			cleanup(RC rc);
+	RC 			cleanup(RC rc);
 #if CC_ALG == TICTOC
-	ts_t 			get_max_wts() 	{ return _max_wts; }
+	uint64_t 		get_max_wts() 	{ return _max_wts; }
 	void 			update_max_wts(ts_t max_wts);
-	ts_t 			last_wts;
-	ts_t 			last_rts;
+	uint64_t 		get_commit_ts() { return _commit_ts; }
+	uint64_t 		last_wts;
+	uint64_t 		last_rts;
 #elif CC_ALG == SILO
 	ts_t 			last_tid;
 #endif
@@ -84,11 +85,11 @@ public:
 	uint64_t 		start_ts;
 	uint64_t 		end_ts;
 	// following are public for OCC
-	int 			row_cnt;
-	int	 			wr_cnt;
+	uint32_t 		row_cnt;
+	uint32_t		wr_cnt;
 	Access **		accesses;		
 	uint32_t * 		write_set;		// store indexes to accesses for writes 
-	int 			num_accesses_alloc;
+	uint32_t 			num_accesses_alloc;
 
 	// For VLL
 	TxnType 		vll_txn_type;
@@ -114,22 +115,28 @@ private:
 	// insert rows
 	uint64_t 		insert_cnt;
 	row_t * 		insert_rows[MAX_ROW_PER_TXN];
-	txnid_t 		txn_id;
+	uint64_t 		txn_id;
 	ts_t 			timestamp;
 
 	bool _write_copy_ptr;
 #if CC_ALG == TICTOC || CC_ALG == SILO
+	bool 			_write_copy_ptr;
 	bool 			_pre_abort;
 	bool 			_validation_no_wait;
 #endif
 #if CC_ALG == TICTOC
 	bool			_atomic_timestamp;
-	ts_t 			_max_wts;
+	uint64_t		_max_wts;
+	uint64_t		_commit_ts; 
 	// the following methods are defined in concurrency_control/tictoc.cpp
 	RC				validate_tictoc();
+	uint64_t		_min_cts;
 #elif CC_ALG == SILO
-	ts_t 			_cur_tid;
+
+	uint64_t 		_epoch;
+	
 	RC				validate_silo();
+	RC				validate_silo_serial();
 #elif CC_ALG == HEKATON
 	RC 				validate_hekaton(RC rc);
 #endif

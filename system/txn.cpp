@@ -530,7 +530,7 @@ RC txn_man::cleanup(RC in_rc)
 				state.wait_start_time = get_sys_clock();
 				state_queue->push(state);
 			}
-  #elif LOG_ALGORITHM == LOG_BATCH
+  #elif LOG_ALGORITHM == LOG_BATCH && CC_ALG == SILO
   			uint64_t flushed_epoch = (uint64_t)-1;
 
 			for (uint32_t i = 0; i < g_num_logger; i ++) {

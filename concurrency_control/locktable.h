@@ -421,7 +421,7 @@ public:
 #else
         
         #if CC_ALG != HEKATON
-            lock_t lt = (type == RD || type == SCAN) ? LOCK_SH : LOCK_EX;
+            lock_t lt = (type == RD || type == SCAN) ? (lock_t)LOCK_SH : (lock_t)LOCK_EX;
             if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
                 return Abort;
         #endif
@@ -436,7 +436,7 @@ public:
             while (!ATOM_CAS(ltv.atomicLock, 0, 1))
             {
                 #if CC_ALG != HEKATON
-                    lock_t lt = (type == RD || type == SCAN) ? LOCK_SH : LOCK_EX;
+                    lock_t lt = (type == RD || type == SCAN) ? (lock_t)LOCK_SH : (lock_t)LOCK_EX;
                     if (row->manager->conflict_lock(lt, row->manager->get_lock_type())) // do not perform write tid check
                         return Abort;
                 #endif

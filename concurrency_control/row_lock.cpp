@@ -12,17 +12,18 @@
 
 void Row_lock::init(row_t * row) {
 	_row = row;
-	owners = NULL;
-	waiters_head = NULL;
-	waiters_tail = NULL;
-	owner_cnt = 0;
-	waiter_cnt = 0;
-
-	latch = new pthread_mutex_t;
-	pthread_mutex_init(latch, NULL);
-	
-	lock_type = LOCK_NONE;
-	blatch = false;
+#if ATOMIC_WORD
+	lock = 0;
+#else
+	#if !USE_LOCKTABLE
+		//latch = new pthread_mutex_t;
+		//pthread_mutex_init(latch, NULL);
+		blatch = false;
+	#endif
+		
+		lock_type = LOCK_NONE_T;
+		ownerCounter = 0;
+#endif
 
 }
 

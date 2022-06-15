@@ -68,14 +68,17 @@ void Stats_tmp::clear() {
 	time_index = 0;
 	time_wait = 0;
 }
+Stats::Stats()
+{
+}
 
 void Stats::init() {
 	if (!STATS_ENABLE) 
 		return;
 	_stats = (Stats_thd**) 
-			_mm_malloc(sizeof(Stats_thd*) * g_thread_cnt, 64);
+			_mm_malloc(sizeof(Stats_thd*) * 4, 64);
 	tmp_stats = (Stats_tmp**) 
-			_mm_malloc(sizeof(Stats_tmp*) * g_thread_cnt, 64);
+			_mm_malloc(sizeof(Stats_tmp*) * 4, 64);
 	dl_detect_time = 0;
 	dl_wait_time = 0;
 	deadlock = 0;

@@ -13,7 +13,7 @@ def replace(filename, pattern, replacement):
 
 jobs = {}
 dbms_cfg = ["config-std.h", "config.h"]
-algs = ['DL_DETECT', 'NO_WAIT', 'SILO', 'TICTOC', 'OCC']
+algs = ['DL_DETECT', 'NO_WAIT',  'TICTOC', 'OCC']
 def insert_job(alg, workload):
 	jobs[alg + '_' + workload] = {
 		"WORKLOAD"			: workload,

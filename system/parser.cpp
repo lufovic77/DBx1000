@@ -1,6 +1,10 @@
 #include "global.h"
 #include "helper.h"
 
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <thread>
 void print_usage() {
 	printf("[usage]:\n");
 	printf("\t-pINT       ; PART_CNT\n");
@@ -110,6 +114,80 @@ void parser(int argc, char * argv[]) {
 				g_test_case = READ_WRITE;
 			if (argv[i][2] == 'c')
 				g_test_case = CONFLICT;
+		}
+		// Logging
+		else if (argv[i][1] == 'L'){
+			if (argv[i][2] == 'b')
+			{
+				g_log_buffer_size = strtoull( &argv[i][3], NULL, 10);
+				//g_read_blocksize = (uint64_t)(g_log_buffer_size * g_recover_buffer_perc);
+			}
+			else if(argv[i][2] == 'e') {
+				g_max_num_epoch = atoi(&argv[i][3]);
+			}
+			else if (argv[i][2] == 'r') {
+				char c = argv[i][3];
+				assert(c == '0' || c == '1');
+				g_log_recover = (c == '1')? true : false;
+			}
+			else if (argv[i][2] == 'R') {
+				// RAMDISK
+				char c = argv[i][3];
+				assert(c == '0' || c == '1');
+				g_ramdisk = (c == '1')? true : false;
+			}
+			else if (argv[i][2] == 'a') 
+			{
+				if (argv[i][3] == 'd')
+					g_rlv_delta = atoi( &argv[i][4] );
+				else if (argv[i][3] == 'l')
+					g_loggingthread_rlv_freq = atoi( &argv[i][4] );
+				else
+					assert(false);
+			}
+			else if (argv[i][2] == 'n') 
+				g_num_logger = atoi( &argv[i][3] );
+			else if (argv[i][2] == 'D')
+				g_num_disk = atoi( &argv[i][3] );
+			else if (argv[i][2] == 'B')
+				g_flush_blocksize = atoi(&argv[i][3]);
+			else if (argv[i][2] == 'K')
+			{
+				// recommend putting -LK at the end.
+				g_read_blocksize = atoi(&argv[i][3]);
+			}
+			else if (argv[i][2] == 'f') { 
+				char c = argv[i][3];
+				assert(c == '0' || c == '1');
+				g_no_flush = (c == '1')? true : false;
+			} else if (argv[i][2] == 'k')
+				g_log_parallel_num_buckets = atoi( &argv[i][3] );
+			else if (argv[i][2] == 'j') 
+				g_epoch_period = atof( &argv[i][3] );
+			else if (argv[i][2] == 'p') 
+				g_num_pools = atoi( &argv[i][3] );
+			else if (argv[i][2] == 'i')
+				g_locktable_init_slots = atoi( &argv[i][3]);
+			else if (argv[i][2] == 'c')
+				g_log_chunk_size = atoi( &argv[i][3] );
+			else if (argv[i][2] == 't')
+				g_flush_interval = atoi( &argv[i][3] ); 
+			else if (argv[i][2] == 's')
+			{
+				printf("Warning: -Ls (g_recover_buffer_perc) is deprecated.\n");
+				assert(false);
+				g_recover_buffer_perc = atof( &argv[i][3] ); 
+				//g_read_blocksize = (uint64_t)(g_log_buffer_size * g_recover_buffer_perc);
+			}
+			else if (argv[i][2] == 'z')
+				g_poolsize_wait = atof( &argv[i][3] ); 
+			else if (argv[i][2] == 'w')
+				g_scan_window = atof( &argv[i][3] );				
+			else if (argv[i][2] == 'd')
+			{
+				g_max_log_entry_size = atoi( &argv[i][3]);
+			}
+			else assert(false);
 		}
 		else if (argv[i][1] == 'o') {
 			i++;

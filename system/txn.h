@@ -118,7 +118,6 @@ private:
 	uint64_t 		txn_id;
 	ts_t 			timestamp;
 
-	bool _write_copy_ptr;
 #if CC_ALG == TICTOC || CC_ALG == SILO
 	bool 			_write_copy_ptr;
 	bool 			_pre_abort;
@@ -189,15 +188,15 @@ protected:
 	virtual void 	recover_txn(char * log_entry, uint64_t tid = (uint64_t)-1)  
 	{ assert(false); }
 	//RecoverState * recover_state) { assert(false); }
-#if LOG_ALGORITHM == LOG_PLOVER
+// #if LOG_ALGORITHM == LOG_PLOVER
 	uint32_t *		_log_entry_sizes;
 	char **			_log_entries;
 
 	uint64_t *		_targets;
-#else
+// #else
 	uint32_t 		_log_entry_size;
 	char * 			_log_entry;
-#endif
+// #endif
 public:
 	void 			try_commit_txn();	
 //private:

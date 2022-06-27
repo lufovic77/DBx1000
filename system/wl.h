@@ -22,7 +22,7 @@ public:
 	map<string, table_t *> tables;
 	map<string, INDEX *> indexes;
 
-	
+	virtual ~workload(){};
 	// initialize the tables and indexes.
 	virtual RC init();
 	virtual RC init_schema(string schema_file);

@@ -17,7 +17,7 @@ algs = ['DL_DETECT', 'NO_WAIT',  'TICTOC', 'OCC']
 def insert_job(alg, workload):
 	jobs[alg + '_' + workload] = {
 		"WORKLOAD"			: workload,
-		"CORE_CNT"			: 4,
+		"CORE_CNT"			: 2,
 		"CC_ALG"			: alg,
 	}
 '''
@@ -46,7 +46,7 @@ def test_compile(job):
 		replacement = "#define " + param + ' ' + str(value)
 		replace(dbms_cfg[1], pattern, replacement)
 	os.system("make clean > temp.out 2>&1")
-	ret = os.system("make -j8 > temp.out 2>&1")
+	ret = os.system("make -j2 > temp.out 2>&1")
 	if ret != 0:
 		print "ERROR in compiling job="
 		print job
@@ -65,8 +65,9 @@ def test_run(test = '', job=None):
 	cmd = "./rundb %s" % (app_flags)
 	start = datetime.datetime.now()
 	process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-	timeout = 10 # in second
+	timeout = 30 # in second
 	while process.poll() is None:
+                print(process.poll())
 		time.sleep(1)
 		now = datetime.datetime.now()
 		if (now - start).seconds > timeout:

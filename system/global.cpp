@@ -122,7 +122,7 @@ UInt32 g_locktable_init_slots = LOCKTABLE_INIT_SLOTS;
 
 
 UInt32 g_field_per_tuple = FIELD_PER_TUPLE;
-UInt32 g_init_parallelism = INIT_PARALLELISM;
+UInt32 g_init_parallelism = 2;
 
 
 uint64_t g_max_txns_per_thread = MAX_TXNS_PER_THREAD;

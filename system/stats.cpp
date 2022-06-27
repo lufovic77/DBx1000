@@ -23,6 +23,8 @@ Stats_thd::Stats_thd(uint64_t i)
 }
 
 void Stats_thd::init(uint64_t thd_id) {
+	_float_stats = (double *)MALLOC(sizeof(double) * NUM_FLOAT_STATS, thd_id);
+	_int_stats = (uint64_t *)MALLOC(sizeof(uint64_t) * NUM_INT_STATS, thd_id);
 	clear();
 	all_debug1 = (uint64_t *)
 		_mm_malloc(sizeof(uint64_t) * MAX_TXN_PER_PART, 64);
